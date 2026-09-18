@@ -74,19 +74,29 @@ Retargeted from `~/src/cve-tracker-template/skeleton` on 2026-09-18:
 rsync destination, and the subsystem clone. Content + CLAUDE.md +
 auto-update prompt rewritten for this bug.
 
-### 2. Publish
+### 2. Publish — done 2026-09-18
 
-- [ ] `make build` and inspect `site/public/` locally.
-- [ ] `make dist` to push to `haig` (`htdocs/tunderflow/` created by rsync).
-- [ ] Verify `https://kimmo.cloud/tunderflow/` renders (RSS + OG metadata).
-- [ ] Add a `<dt>`/`<dd>` entry to the `~/src/kimmo.cloud` front page.
+- [x] `make build` and inspect `site/public/` locally.
+- [x] `make dist` to push to `haig` (`htdocs/tunderflow/` created by rsync).
+- [x] Verify `https://kimmo.cloud/tunderflow/` renders (RSS + OG metadata).
+- [x] Add a `<dt>`/`<dd>` entry to the `~/src/kimmo.cloud` front page
+      (committed there; published with that repo's next `make dist`).
 
-### 3. Automated maintenance
+### 3. Automated maintenance — worktree and units in place, timer pending
 
-- [ ] `git worktree add -b auto-update ~/src/auto-update/tunderflow main`
-- [ ] Install and enable
-      `systemd/tunderflow-tracker-update.{service,timer}` (see CLAUDE.md).
-- [ ] Confirm the timer slot `06,18:35` collides with no sibling.
+`main` must be pushed to `origin` first: the wrapper runs
+`git fetch origin` and `git merge origin/main` under `set -e`, so every
+scheduled run aborts without it.
+
+- [x] `git worktree add -b auto-update ~/src/auto-update/tunderflow main`
+- [x] Install `systemd/tunderflow-tracker-update.{service,timer}` as
+      relative symlinks under `~/.config/systemd/user/` and
+      `daemon-reload`.
+- [ ] `systemctl --user enable --now tunderflow-tracker-update.timer`
+      (after the push).
+- [x] Confirm the timer slot `06,18:35` collides with no sibling: the
+      sibling seeds took `05,17:20` (DirtyAH6), `06,18:20` (DiagSpill),
+      and `06,18:50` (PPPoEject).
 
 ## Decisions
 
