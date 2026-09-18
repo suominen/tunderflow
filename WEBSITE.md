@@ -82,9 +82,9 @@ auto-update prompt rewritten for this bug.
 - [x] Add a `<dt>`/`<dd>` entry to the `~/src/kimmo.cloud` front page
       (committed there; published with that repo's next `make dist`).
 
-### 3. Automated maintenance — worktree and units in place, timer pending
+### 3. Automated maintenance — done 2026-09-18
 
-`main` must be pushed to `origin` first: the wrapper runs
+`main` was pushed to `origin` first: the wrapper runs
 `git fetch origin` and `git merge origin/main` under `set -e`, so every
 scheduled run aborts without it.
 
@@ -92,8 +92,8 @@ scheduled run aborts without it.
 - [x] Install `systemd/tunderflow-tracker-update.{service,timer}` as
       relative symlinks under `~/.config/systemd/user/` and
       `daemon-reload`.
-- [ ] `systemctl --user enable --now tunderflow-tracker-update.timer`
-      (after the push).
+- [x] `systemctl --user enable --now tunderflow-tracker-update.timer`
+      (after the push). First scheduled run: 2026-09-18 18:35.
 - [x] Confirm the timer slot `06,18:35` collides with no sibling: the
       sibling seeds took `05,17:20` (DirtyAH6), `06,18:20` (DiagSpill),
       and `06,18:50` (PPPoEject).
