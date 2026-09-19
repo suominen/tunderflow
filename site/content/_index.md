@@ -139,9 +139,9 @@ a row is fixed.
 | NixOS | Unstable (nixpkgs) | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | 26.05 | 6.18.52 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
 | NixOS | 26.05 (small) | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| Rocky Linux / RHEL | 10 | 6.12.0-211.55.1.el10_2 | — | — | :x: Vulnerable — no RHSA yet |
-| Rocky Linux / RHEL | 9 | 5.14.0-687.48.1.el9_8 | — | — | :x: Vulnerable — no RHSA yet |
-| Rocky Linux / RHEL | 8 | 4.18.0-553.163.1.el8_10 | — | — | :x: Vulnerable — no RHSA yet |
+| Rocky Linux / RHEL | 10 | 6.12.0-211.56.1.el10_2.0.1 | — | — | :x: Vulnerable — no RHSA yet |
+| Rocky Linux / RHEL | 9 | 5.14.0-687.49.1.el9_8 | — | — | :x: Vulnerable — no RHSA yet |
+| Rocky Linux / RHEL | 8 | 4.18.0-553.164.1.el8_10 | — | — | :x: Vulnerable — no RHSA yet |
 | Amazon Linux | 2023 (default) | 6.1.186-228.376 | — | — | :x: Vulnerable — no ALAS yet |
 | Amazon Linux | 2023 (6.12 opt-in) | 6.12.103-129.197 | — | — | :x: Vulnerable — no ALAS yet |
 | Amazon Linux | 2023 (6.18 opt-in) | 6.18.48-109.150 | — | — | :x: Vulnerable — no ALAS yet |
