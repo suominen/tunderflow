@@ -109,7 +109,7 @@ leave behind is the edited tracker (and its commit).
         read each release's status + the version under `repositories`
         (a <suite>-security entry = shipped as a security update). Use
         madison only for the base-suite version and the sid/testing lineage:
-          curl -fsS 'https://api.ftp-master.debian.org/madison?package=linux&s=sid,forky,trixie,bookworm,bullseye&text=on'
+          curl -fsS 'https://api.ftp-master.debian.org/madison?package=linux&s=sid,forky,trixie,bookworm&text=on'
       - Rocky / RHEL: the Red Hat security data API is the authoritative
         leading signal (RHEL is upstream of Rocky/Alma) — WebFetch
         https://access.redhat.com/security/cve/CVE-2026-81000 or curl

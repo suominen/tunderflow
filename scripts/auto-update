@@ -35,8 +35,8 @@ set -o pipefail
 PROG="${0##*/}"
 
 # Which clone set to refresh and which mode-only tools to allowlist.
-# Seeded per tracker from the kernel token; an unsubstituted token
-# fails the check below the same way a typo would.
+# Seeded per tracker from the template's MODE token; an unrecognised
+# value fails the check below the same way a typo would.
 MODE='kernel'
 
 case "${MODE}" in

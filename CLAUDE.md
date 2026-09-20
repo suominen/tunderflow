@@ -168,10 +168,13 @@ expected before the tracker existed — it is covered collectively in the
 don't poll AL2 repodata.
 
 Debian suites get one row for the **default** `linux` kernel and, where
-one exists, a separate row per opt-in alternative kernel package (e.g.
-bullseye's `linux-6.1` source package — the bookworm 6.1 kernel
-rebuilt for bullseye, shipped via `bullseye-security` — as row
-`11 (6.1 opt-in)`). A fixed opt-in row never flips the default row's
+one exists, a separate row per opt-in alternative kernel package that
+ships as its own source package (a `linux-6.x` rebuild of a newer
+suite's kernel for an older suite, as row `12 (6.x opt-in)`); the
+`-backports` rebuild of the newer suite's `linux` source is mentioned
+in the `### Debian` prose instead. **bullseye** (Debian 11) left
+security support on 2026-08-31 and gets **no rows** — don't poll it.
+A fixed opt-in row never flips the default row's
 verdict: while
 `src:linux` is open in the security tracker the default row stays
 vulnerable. The same default-plus-variant row pattern applies to
@@ -506,10 +509,10 @@ score yet. Red Hat's own score may be marked `draft`.
 
   Use the dak madison API only for the base-suite version and the
   sid/testing lineage (unstable=sid, testing=forky, stable=trixie,
-  oldstable=bookworm, oldoldstable=bullseye):
+  oldstable=bookworm):
 
   ```
-  curl -fsSL 'https://api.ftp-master.debian.org/madison?package=linux&s=sid,forky,trixie,bookworm,bullseye&text=on'
+  curl -fsSL 'https://api.ftp-master.debian.org/madison?package=linux&s=sid,forky,trixie,bookworm&text=on'
   ```
 
   For a *Fixed since* date, use the `first_seen` of the fixed version in
@@ -532,8 +535,14 @@ score yet. Red Hat's own score may be marked `draft`.
   series (`https://ubuntu.com/security/cves/CVE-2026-81000.json`, the
   `packages[].statuses[]` entries — `released` plus version); base ≥
   Ubuntu's fixed version means the PVE build carries the fix even with
-  no cherry-pick line. Kernel.org EOL for the series proves nothing
-  here — Ubuntu keeps fixing series long after upstream EOL; named
+  no cherry-pick line. Prove it rather than trusting the version
+  compare: the Ubuntu build's changelog at
+  `https://changelogs.ubuntu.com/changelogs/pool/main/l/linux/linux_<ver>/changelog`
+  lists every upstream stable subject it pulled in, so grep it for the
+  fix's subject (Launchpad's git `plain` file URLs return 403
+  headlessly, so the source itself cannot be read that way).
+  Kernel.org EOL for the series proves nothing here — Ubuntu keeps
+  fixing series long after upstream EOL; named
   cherry-picks are the signal only for series Ubuntu no longer fixes
   (superseded `old` series, and opt-ins whose Ubuntu HWE source is
   EOL). The default kernel *series* is whatever the
@@ -582,10 +591,54 @@ score yet. Red Hat's own score may be marked `draft`.
   `*-primary.xml.gz`, needs `zcat`; highest `ver`/`rel` compared by RPM
   rules — a plain `sort -V` on the raw attribute puts EL8's `553.el8_10`
   above `553.163.1.el8_10`) reaching that
-  NVR; AlmaLinux is the fastest rebuild (cross-check OSV
-  `https://api.osv.dev/v1/vulns/CVE-2026-81000`). Red Hat also marks kernels that
-  predate the bug **Not affected**, which confirms any pre-introduction EL
-  rows.
+  NVR — and expect Rocky to **skip the exact RHEL NVR** and publish the
+  next build instead, so *First fixed* is the first Rocky build past
+  the RHSA NVR, not the RHSA NVR. For *Fixed since* use that build's
+  upload date from the mirror directory listing
+  `https://dl.rockylinux.org/pub/rocky/<N>/BaseOS/x86_64/os/Packages/k/`:
+  Rocky's own `updateinfo.xml` may name no advisory for the CVE at all,
+  and the errata API (`apollo.build.resf.org/api/v3/advisories/`)
+  ignores its `?cve=` / `?search=` filters and returns the newest
+  advisories whatever is asked, so neither is a usable date source.
+  AlmaLinux is the fastest rebuild (cross-check OSV
+  `https://api.osv.dev/v1/vulns/CVE-2026-81000`, which lists the ALSA). Red Hat
+  also marks kernels that predate the bug **Not affected**, which
+  confirms any pre-introduction EL rows.
+
+  **Positive changelog cross-check (gated).** For a Moderate CVE Red Hat
+  often defers the fix for months, so `fix_state` can stay Affected while
+  the shipped kernel is what actually matters — the backport lands in the
+  kernel's RPM `%changelog` (the binary) before, or without, an
+  `affected_release` ever appearing, so don't rely on `affected_release`
+  alone for the flip. **Guardrail:** the *Current kernel* version is
+  pulled from `primary.xml.gz` every run anyway; run this extra check
+  **only when that version actually moved for a row still `:x:` /
+  `:warning:`** — never on a no-op run, and never for an already-Fixed
+  row. `other.xml.gz` is a large fetch, so gating it on a real version
+  change for an unfixed row keeps it off the many quiet runs. When the
+  gate opens, pull the BaseOS `*-other.xml.gz` (resolve its href from
+  `repomd.xml`, same as `primary.xml.gz`) and grep the kernel changelog
+  for the CVE id:
+
+  ```
+  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | grep -c CVE-2026-81000
+  ```
+
+  On a nonzero count, confirm with `grep -B2 CVE-2026-81000` that the
+  surrounding line is a `kernel` `%changelog` entry (`other.xml.gz`
+  carries every package's changelog on one stream, so it is not
+  package-scoped — though a kernel CVE id realistically appears only in
+  the `kernel` / `kernel-rt` changelogs). A confirmed hit means the
+  backport is in the shipped binary: flip the row to Fixed even if
+  `affected_release` is still empty, set *First fixed* to the first Rocky
+  build carrying it, and *Fixed since* to that build's date (the mirror
+  `Packages/k/` listing above). A **miss is not proof of absence**:
+  repodata keeps only the ~10 newest changelog entries per build, so a
+  fix that shipped in an older build and scrolled off the tail won't show
+  here — but such a fix is already reflected in `affected_release` / an
+  RHSA, so the two signals cover each other. Treat the changelog grep as
+  the positive early-detector and `affected_release` as the backstop;
+  neither alone is sufficient.
 - **Amazon**: the machine-readable ALAS signal is the repodata
   **`updateinfo.xml.gz`** (maps CVE → ALAS → fixed kernel NVR) — the per-CVE
   ALAS HTML pages are JS-rendered and return nothing headlessly, so don't
