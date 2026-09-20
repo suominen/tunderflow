@@ -96,8 +96,8 @@ leave behind is the edited tracker (and its commit).
    Rocky/Amazon repodata — exact recipes in CLAUDE.md). A row flips to
    ":white_check_mark: Fixed" only when its kernel carries the backport;
    on a flip, set *First fixed* to the first fixed build and *Fixed since*
-   per the CLAUDE.md rule. zcat, gunzip, grep, sort, rpmsort, tail, jq
-   and tee are allowlisted; python3, awk, sed and cat are not — if one of those is
+   per the CLAUDE.md rule. zcat, gunzip, grep, sort, rpmsort, tail, jq,
+   xq and tee are allowlisted; python3, awk, sed and cat are not — if one of those is
    refused, don't retry it in another spelling. Do NOT record NixOS
    channel git-revisions.
 

@@ -244,10 +244,13 @@ kernel)
   # rpmsort orders the Rocky kernel builds by RPM rules (sort -V
   # misorders EL8's `553.el8_10` above `553.163.1.el8_10`) and tail
   # picks the newest from its output (rpmsort has no reverse flag),
-  # alas-cve maps a CVE to the Amazon Linux advisories that fix it
-  # (updateinfo.xml is not line-safe for grep), and git describe maps
-  # a fix commit to the release that carries it -- kernel-side lookups
-  # package mode does not need.
+  # xq answers XPath queries against them (the Rocky changelog
+  # cross-check reads other.xml.gz through it -- a parsed query, not
+  # a grep that assumes createrepo_c's line layout), alas-cve maps a
+  # CVE to the Amazon Linux advisories that fix it (updateinfo.xml is
+  # not line-safe for grep), and git describe maps a fix commit to the
+  # release that carries it -- kernel-side lookups package mode does
+  # not need.
   #
   # The pve-kernel branch-listing rules cover the one `git -C` read
   # the project settings have no rule for: nothing behind `git -C` is
@@ -263,6 +266,7 @@ kernel)
     "Bash(gunzip:*)",
     "Bash(rpmsort:*)",
     "Bash(tail:*)",
+    "Bash(xq:*)",
     "Bash(${HELPERS}/alas-cve:*)",
     "Bash(git describe:*)",
     "Bash(git -C ~/src/proxmox/pve-kernel branch -r:*)",

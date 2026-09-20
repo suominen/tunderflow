@@ -236,7 +236,8 @@ picks the fix up; *Fixed since* is the release tag date from
 `~/src/linux/stable`.
 
 `zcat` / `gunzip` **are** in the headless allowlist — use them for the
-`Packages.gz` / repodata pulls — as are `grep`, `sort`, `jq` and `tee`
+`Packages.gz` / repodata pulls — as are `grep`, `sort`, `rpmsort`,
+`tail`, `jq`, `xq` and `tee`
 (`tee` because a `>` redirection into the worktree is refused). Pull
 only kernel versions and advisory state — the tracker records no other
 per-distro facts.
@@ -335,11 +336,14 @@ leave the file alone and don't commit — don't bump `lastmod`.
 
 - Hugo extended **≥ 0.146.0** (PaperMod's minimum). Debian apt is too old.
 - Go (any recent version) — for Hugo Modules to pull PaperMod.
+- `xq` (Debian package `xq`) on the auto-update host — the Rocky
+  changelog cross-check queries `other.xml.gz` with it.
+- `rpmsort` (Debian package `rpm`) on the auto-update host — orders
+  EL kernel builds by RPM rules for the Rocky rows. The timer service
+  runs on the host `PATH`, so install both with apt; the flake does
+  not provide them.
 - The Nix flake provides both: `nix develop` (or `cd` in if direnv is set
   up). `hugo`, `go`, and `resvg` may also already be on `PATH`.
-- `rpmsort` (Debian package `rpm`) — orders EL kernel builds by RPM
-  rules for the Rocky rows. The timer service runs on the host `PATH`,
-  so install it with apt; the flake does not provide it.
 
 ## Auto-update worktree
 
@@ -609,13 +613,14 @@ score yet. Red Hat's own score may be marked `draft`.
 
   **Highest build: `rpmsort`, never `sort -V`.** Order the `kernel`
   `ver`/`rel` pairs from `primary.xml.gz` with `rpmsort` (Debian
-  package `rpm`), which applies RPM's own comparison — a numeric
-  segment beats an alphabetic one, so `553.163.1.el8_10` sorts above
-  `553.el8_10`, where a plain `sort -V` on the raw attribute puts EL8's
-  base build on top. It orders `name-version-release`,
-  `version-release`, and the raw `<version …/>` element alike, so the
-  element grepped out of the repodata can go straight in; the last
-  line is the current build:
+  package `rpm`; allowlisted for the headless run), which applies
+  RPM's own comparison — a numeric segment beats an alphabetic one, so
+  `553.163.1.el8_10` sorts above `553.el8_10`, where a plain `sort -V`
+  on the raw attribute puts EL8's base build on top. It orders
+  `name-version-release`, `version-release`, and the raw
+  `<version …/>` element alike, so the element grepped out of the
+  repodata can go straight in; the last line is the current build
+  (`rpmsort` has no reverse flag, hence `tail`, also allowlisted):
 
   ```
   curl -fsSL "${base}repodata/<hash>-primary.xml.gz" | zcat | grep -A2 '<name>kernel</name>' | grep -o '<version [^>]*>' | rpmsort | tail -1
@@ -633,26 +638,43 @@ score yet. Red Hat's own score may be marked `draft`.
   row. `other.xml.gz` is a large fetch, so gating it on a real version
   change for an unfixed row keeps it off the many quiet runs. When the
   gate opens, pull the BaseOS `*-other.xml.gz` (resolve its href from
-  `repomd.xml`, same as `primary.xml.gz`) and grep the kernel changelog
-  for the CVE id:
+  `repomd.xml`, same as `primary.xml.gz`) and ask it, with an XPath
+  query, for the `kernel` changelog entries that name the CVE. Use `xq`
+  (sibprogrammer's Go `xq`, Debian package `xq`; allowlisted for the
+  headless run) rather than a line grep: it parses the document, so the
+  query does not depend on how createrepo_c happens to serialise it
+  (today one node per line; a grep would silently break the day that
+  changes). Each entry's `author` attribute ends in `[<NVR>]`, the RHEL
+  build the change landed in, and empty output means no entry names the
+  CVE (`xq` exits 0 either way — read the output, not the status):
 
   ```
-  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | grep -c CVE-2026-81000
+  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | xq -x '//package[@name="kernel"]/changelog[contains(., "CVE-2026-81000")]/@author' | sort -u
   ```
 
-  On a nonzero count, confirm with `grep -B2 CVE-2026-81000` that the
-  surrounding line is a `kernel` `%changelog` entry (`other.xml.gz`
-  carries every package's changelog on one stream, so it is not
-  package-scoped — though a kernel CVE id realistically appears only in
-  the `kernel` / `kernel-rt` changelogs). A confirmed hit means the
+  On a hit, list the shipped Rocky `kernel` builds whose changelog
+  carries the entry, oldest first — the first line is *First fixed*
+  (Rocky may skip the exact RHEL NVR, so it can be later than the
+  bracket; the EL `os/` repos keep every build, and a build never drops
+  its own newest entries, so the oldest build still listing the entry is
+  the first one that shipped it):
+
+  ```
+  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | xq -n -x '//package[@name="kernel"][changelog[contains(., "CVE-2026-81000")]]/version' | sort -u | rpmsort
+  ```
+
+  Fetch once with `| zcat | tee other.xml` and query the file if you
+  want to avoid pulling it twice. The `kernel` subpackages
+  (`kernel-core`, `kernel-modules`, …) share the same changelog, which
+  is why the query pins `@name="kernel"`. A confirmed hit means the
   backport is in the shipped binary: flip the row to Fixed even if
-  `affected_release` is still empty, set *First fixed* to the first Rocky
-  build carrying it, and *Fixed since* to that build's date (the mirror
-  `Packages/k/` listing above). A **miss is not proof of absence**:
+  `affected_release` is still empty, set *First fixed* to that build,
+  and *Fixed since* to its upload date from the `Packages/k/` listing.
+  A **miss is not proof of absence**:
   repodata keeps only the ~10 newest changelog entries per build, so a
   fix that shipped in an older build and scrolled off the tail won't show
   here — but such a fix is already reflected in `affected_release` / an
-  RHSA, so the two signals cover each other. Treat the changelog grep as
+  RHSA, so the two signals cover each other. Treat the changelog query as
   the positive early-detector and `affected_release` as the backstop;
   neither alone is sufficient.
 - **Amazon**: the machine-readable ALAS signal is the repodata
@@ -694,9 +716,9 @@ score yet. Red Hat's own score may be marked `draft`.
   helper under `scripts/` (the worktree copy is untrusted and not
   allowlisted).  `-p <regex>` widens the package filter beyond the
   kernel stream packages.  Its tests live in `tests/` (`make check`).
-  The same line-packing applies to `other.xml`, so a changelog
-  attribution there needs an XML parse too (interactively, `python3`
-  `xml.etree`; no helper covers it yet).
+  `xq` (the XPath tool the Rocky changelog cross-check above uses)
+  reads the packed file correctly too, but the helper stays the recipe:
+  it prints the fixed NVR per kernel stream and is covered by tests.
 
 ## Known harmless warnings during build
 
