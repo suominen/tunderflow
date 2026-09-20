@@ -241,6 +241,9 @@ HELPERS="${CODE}/scripts"
 case "${MODE}" in
 kernel)
   # zcat/gunzip unpack the gzipped repodata and Packages indexes,
+  # rpmsort orders the Rocky kernel builds by RPM rules (sort -V
+  # misorders EL8's `553.el8_10` above `553.163.1.el8_10`) and tail
+  # picks the newest from its output (rpmsort has no reverse flag),
   # alas-cve maps a CVE to the Amazon Linux advisories that fix it
   # (updateinfo.xml is not line-safe for grep), and git describe maps
   # a fix commit to the release that carries it -- kernel-side lookups
@@ -258,6 +261,8 @@ kernel)
   mode_tools="$(cat << EOF
     "Bash(zcat:*)",
     "Bash(gunzip:*)",
+    "Bash(rpmsort:*)",
+    "Bash(tail:*)",
     "Bash(${HELPERS}/alas-cve:*)",
     "Bash(git describe:*)",
     "Bash(git -C ~/src/proxmox/pve-kernel branch -r:*)",

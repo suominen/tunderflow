@@ -337,6 +337,9 @@ leave the file alone and don't commit — don't bump `lastmod`.
 - Go (any recent version) — for Hugo Modules to pull PaperMod.
 - The Nix flake provides both: `nix develop` (or `cd` in if direnv is set
   up). `hugo`, `go`, and `resvg` may also already be on `PATH`.
+- `rpmsort` (Debian package `rpm`) — orders EL kernel builds by RPM
+  rules for the Rocky rows. The timer service runs on the host `PATH`,
+  so install it with apt; the flake does not provide it.
 
 ## Auto-update worktree
 
@@ -587,10 +590,9 @@ score yet. Red Hat's own score may be marked `draft`.
   WebFetch the `access.redhat.com/security/cve/` page — it is
   JS-rendered and returns only the navigation shell headlessly, which
   reads as a false "no record". While `fix_state` is Affected with an
-  empty `affected_release`, EL is unfixed. Confirm the Rocky ship via BaseOS repodata (`repomd.xml` →
-  `*-primary.xml.gz`, needs `zcat`; highest `ver`/`rel` compared by RPM
-  rules — a plain `sort -V` on the raw attribute puts EL8's `553.el8_10`
-  above `553.163.1.el8_10`) reaching that
+  empty `affected_release`, EL is unfixed. Confirm the Rocky ship via
+  BaseOS repodata (`repomd.xml` → `*-primary.xml.gz`, needs `zcat`)
+  reaching that
   NVR — and expect Rocky to **skip the exact RHEL NVR** and publish the
   next build instead, so *First fixed* is the first Rocky build past
   the RHSA NVR, not the RHSA NVR. For *Fixed since* use that build's
@@ -604,6 +606,20 @@ score yet. Red Hat's own score may be marked `draft`.
   `https://api.osv.dev/v1/vulns/CVE-2026-81000`, which lists the ALSA). Red Hat
   also marks kernels that predate the bug **Not affected**, which
   confirms any pre-introduction EL rows.
+
+  **Highest build: `rpmsort`, never `sort -V`.** Order the `kernel`
+  `ver`/`rel` pairs from `primary.xml.gz` with `rpmsort` (Debian
+  package `rpm`), which applies RPM's own comparison — a numeric
+  segment beats an alphabetic one, so `553.163.1.el8_10` sorts above
+  `553.el8_10`, where a plain `sort -V` on the raw attribute puts EL8's
+  base build on top. It orders `name-version-release`,
+  `version-release`, and the raw `<version …/>` element alike, so the
+  element grepped out of the repodata can go straight in; the last
+  line is the current build:
+
+  ```
+  curl -fsSL "${base}repodata/<hash>-primary.xml.gz" | zcat | grep -A2 '<name>kernel</name>' | grep -o '<version [^>]*>' | rpmsort | tail -1
+  ```
 
   **Positive changelog cross-check (gated).** For a Moderate CVE Red Hat
   often defers the fix for months, so `fix_state` can stay Affected while
