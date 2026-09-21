@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-09-19
+lastmod: 2026-09-21
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -117,7 +117,7 @@ a row is fixed.
 
 | Distribution | Release | Current kernel | First fixed | Fixed since | Status |
 |---|---|---|---|---|---|
-| Linux kernel | mainline | 7.3-rc3 | 7.3-rc1 | 2026-08-30 | :white_check_mark: Fixed — carries `447c9303942c` |
+| Linux kernel | mainline | 7.3-rc4 | 7.3-rc1 | 2026-08-30 | :white_check_mark: Fixed — carries `447c9303942c` |
 | Linux kernel | 7.2.x | 7.2.6 | 7.2.4 | 2026-09-07 | :white_check_mark: Fixed |
 | Linux kernel | 6.18.x | 6.18.52 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed — LTS |
 | Linux kernel | 6.12.x | 6.12.110 | 6.12.109 | 2026-09-07 | :white_check_mark: Fixed — LTS |
