@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-09-21
+lastmod: 2026-09-22
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -131,7 +131,6 @@ a row is fixed.
 | Debian | 12 (bookworm) | 6.1.187-1 | — | — | :x: Vulnerable |
 | Debian | 12 (6.12 opt-in) | 6.12.107-1~deb12u1 | — | — | :x: Vulnerable |
 | Proxmox VE | 9 (default) | 7.0.14-19-pve | 7.0.14-19 | 2026-09-18 | :white_check_mark: Fixed |
-| Proxmox VE | 8 (default) | 6.8.12-43-pve | — | — | :x: Vulnerable |
 | NixOS | master | 6.18.52 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | release-26.05 | 6.18.52 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | Unstable | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
@@ -211,23 +210,21 @@ default (`kernel.unprivileged_userns_clone = 1`).
 ### Proxmox VE
 
 Proxmox ships its own Ubuntu-derived kernels, so Debian's status does
-not carry over. **PVE 8**'s `proxmox-kernel-6.8` is built from Ubuntu's
-6.8 kernel; Ubuntu's own tracker marks every one of its kernel series
-*needed* — no fixed Ubuntu build exists yet — and the packaging branch
-carries no TUN cherry-pick, so PVE 8 stays **vulnerable**. **PVE 9** is
-**fixed**: `proxmox-kernel-7.0` picked up a named cherry-pick in the
-`7.0.14-19` changelog entry, dated 2026-09-18, and that build has since
-reached `pve-no-subscription`. Elsewhere the fix still arrives either
-as a named cherry-pick, Proxmox's usual route for a security fix, or
-silently inside the next Ubuntu rebase once Ubuntu ships one.
+not carry over. **PVE 9** is **fixed**: `proxmox-kernel-7.0` picked up
+a named cherry-pick in the `7.0.14-19` changelog entry, dated
+2026-09-18, and that build has since reached `pve-no-subscription`.
 
-Both releases also still publish preview and superseded kernel series
-that Proxmox stopped updating before this disclosure and that will never
-receive the fix: PVE 9's `proxmox-kernel-6.17` (last built July 2026)
-and `-6.14` (May 2026), and PVE 8's `proxmox-kernel-6.14` (a
-`bookworm-backports` opt-in last built in May 2026), `-6.11`, `-6.5`, and `-6.2`. A host
-booting any of them stays vulnerable until it switches to its release's
-current default kernel — and then still waits for that kernel's fix.
+**PVE 8** reached end of life in **August 2026**, before this tracker
+existed and before any fix reached its kernels: its default
+`proxmox-kernel-6.8` and the `bookworm-backports` opt-in
+`proxmox-kernel-6.14` are permanently **vulnerable**, and no fix is
+coming. A host still on PVE 8 should upgrade to PVE 9.
+
+PVE 9 also still publishes preview kernel series that Proxmox stopped
+updating before this disclosure and that will never receive the fix:
+`proxmox-kernel-6.17` (last built July 2026) and `-6.14` (May 2026). A
+host booting either of them stays vulnerable until it switches to the
+current default kernel, which carries the fix.
 
 Proxmox hosts are also where TUN/TAP and Open vSwitch are routinely in
 use: every VM's network interface is a TAP device, and
@@ -518,27 +515,23 @@ reproduced. Most readers never need it.
     row.
   - forky's kernel is the 7.1 line, which upstream ended at 7.1.13
     without the fix.
-- **Proxmox VE** (via `pve-no-subscription` `Packages.gz` for `trixie`
-  and `bookworm`, the `~/src/proxmox/pve-kernel` changelogs, and
-  Ubuntu's CVE JSON):
-  - `proxmox-default-kernel` depends on `proxmox-kernel-7.0` on trixie
-    and on `proxmox-kernel-6.8` on bookworm.
+- **Proxmox VE** (via `pve-no-subscription` `Packages.gz` for `trixie`,
+  the `~/src/proxmox/pve-kernel` changelogs, and Ubuntu's CVE JSON):
+  - `proxmox-default-kernel` depends on `proxmox-kernel-7.0` on trixie.
   - *Current kernel* is the highest `proxmox-kernel-<series>`
     metapackage version in that index.
   - `debian/changelog` on `origin/master` (7.0) carries the fix in the
     `7.0.14-19` entry ("fix CVE-2026-81000: net: tun: bound receive
     headroom"), dated 2026-09-18; `pve-no-subscription` now publishes
     that build.
-  - `debian/changelog` on `origin/bookworm-6.8` carries no
-    CVE-2026-81000 or TUN headroom cherry-pick.
-  - Ubuntu's tracker marks `linux` *needed* on every supported release,
-    so no rebase can have carried the fix yet; the newest
-    `update … to Ubuntu-<series>` changelog entry is compared against
-    Ubuntu's fixed version once one is published.
+  - PVE 8 reached end of life in 2026-08 (Proxmox VE FAQ lifecycle
+    table, pve.proxmox.com/wiki/FAQ), before this tracker existed.
+  - `origin/bookworm-6.8` carried no CVE-2026-81000 or TUN headroom
+    cherry-pick at its final build.
+  - Ubuntu's tracker marks the 6.8 base *needed*.
   - Series last updated before the disclosure, without the fix:
     trixie `proxmox-kernel-6.17` (changelog head 2026-07-28) and
-    `-6.14` (2026-05-15); bookworm `proxmox-kernel-6.14` (2026-05-15),
-    `-6.11` (2025-03-16), `-6.5`, and `-6.2`.
+    `-6.14` (2026-05-15).
 - **NixOS** (via `channels.nixos.org/<channel>/git-revision` →
   `pkgs/os-specific/linux/kernel/kernels-org.json` in
   `~/src/nixos/nixpkgs`, `packageAliases.linux_default` in
