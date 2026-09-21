@@ -220,8 +220,9 @@ fi
 # and sort are allowlisted even though Claude Code auto-classifies
 # both as read-only: the classifier gives up on an argument holding
 # a `$`, a `\{n\}` interval, or an embedded quote -- `grep '^Package:
-# x$'`, `sort -t'"' -k4 -V`, exactly the shapes the recipes use --
-# and refuses the whole pipeline; an explicit rule overrides it
+# x$'`, `grep -o '[^:][^:]*$'`, the jq stage's `capture("ver=\"…")`,
+# exactly the shapes the recipes use -- and refuses the whole
+# pipeline; an explicit rule overrides it
 # (probe-verified on 2.1.247). jq is a read-only filter the wrapper
 # already depends on; without it the agent burns retries on python3
 # and awk against the JSON feeds. All three keep Claude Code's
@@ -242,7 +243,10 @@ case "${MODE}" in
 kernel)
   # zcat/gunzip unpack the gzipped repodata and Packages indexes,
   # rpmsort orders the Rocky kernel builds by RPM rules (sort -V
-  # misorders EL8's `553.el8_10` above `553.163.1.el8_10`) and tail
+  # misorders EL8's `553.el8_10` above `553.163.1.el8_10`; it is fed
+  # `kernel-epoch:ver-rel` strings built by the core allowlist's jq,
+  # since it compares anything before the last two dashes as a name,
+  # and grep -o strips the prefix again afterwards) and tail
   # picks the newest from its output (rpmsort has no reverse flag),
   # xq answers XPath queries against them (the Rocky changelog
   # cross-check reads other.xml.gz through it -- a parsed query, not

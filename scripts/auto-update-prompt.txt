@@ -117,8 +117,10 @@ leave behind is the edited tracker (and its commit).
         and read the kernel fix_state + affected_release. While fix_state is
         Affected with no affected_release/RHSA, EL is unfixed (Rocky :x:).
         When an RHSA + fixed NVR appears, confirm via Rocky BaseOS repodata
-        (zcat; order kernel builds with rpmsort, never sort -V) reaching
-        it; cross-check AlmaLinux via OSV
+        (zcat; order kernel builds with rpmsort as jq-built
+        `kernel-epoch:ver-rel` strings, never the raw <version> element
+        or sort -V; recipe in CLAUDE.md)
+        reaching it; cross-check AlmaLinux via OSV
         https://api.osv.dev/v1/vulns/CVE-2026-81000.
       - Amazon: the ALAS signal is the repodata updateinfo.xml.gz (maps CVE
         -> ALAS -> fixed NVR), NOT the JS-rendered per-CVE ALAS page (returns

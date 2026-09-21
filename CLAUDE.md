@@ -622,15 +622,33 @@ score yet. Red Hat's own score may be marked `draft`.
   package `rpm`; allowlisted for the headless run), which applies
   RPM's own comparison — a numeric segment beats an alphabetic one, so
   `553.163.1.el8_10` sorts above `553.el8_10`, where a plain `sort -V`
-  on the raw attribute puts EL8's base build on top. It orders
-  `name-version-release`, `version-release`, and the raw
-  `<version …/>` element alike, so the element grepped out of the
-  repodata can go straight in; the last line is the current build
-  (`rpmsort` has no reverse flag, hence `tail`, also allowlisted):
+  on the raw attribute puts EL8's base build on top. **Feed it real
+  `kernel-<epoch>:<ver>-<rel>` strings.** `rpmsort` splits each line
+  at its last two dashes and compares whatever precedes them as a
+  package *name* with plain `strcmp`; only the version and release
+  segments get RPM comparison. The raw `<version …/>` element has no
+  dash, so the whole line is a "name" and sorts lexically: on live
+  Rocky 8 `553.el8_10` lands last and `tail -1` returns the base
+  build, and on AL2023 lexical order ranks `6.12.95` above `6.12.103`
+  and `6.18.8` above `6.18.48`. A bare `ver-rel` is no safer: its
+  `ver` becomes the "name", which is right only while every line
+  shares one `ver` (`4.18.9-1.el8` sorts above `4.18.10-1.el8`). The
+  epoch goes in front of the version because AL2023 has bumped it
+  mid-stream (`kernel` and `kernel6.12` carry both `0` and `1`), and
+  an epoch bump is allowed to reset `ver-rel`; `rpmvercmp` splits on
+  `:` like on `.`, so `1:6.12.103` outranks `0:6.13.1`. Build the
+  string with `jq` (allowlisted; a line without `epoch=`/`ver=`/`rel=`
+  attributes emits nothing), order with `rpmsort`, take the last line
+  (`rpmsort` has no reverse flag, hence `tail`, also allowlisted), and
+  strip the `kernel-<epoch>:` prefix with `grep -o` so what is left
+  is the `ver-rel` the version cells hold:
 
   ```
-  curl -fsSL "${base}repodata/<hash>-primary.xml.gz" | zcat | grep -A2 '<name>kernel</name>' | grep -o '<version [^>]*>' | rpmsort | tail -1
+  curl -fsSL "${base}repodata/<hash>-primary.xml.gz" | zcat | grep -A2 '<name>kernel</name>' | grep -o '<version [^>]*>' | jq -R -r 'capture("epoch=\"(?<e>[^\"]+)\"") + capture("ver=\"(?<v>[^\"]+)\"") + capture("rel=\"(?<r>[^\"]+)\"") | "kernel-\(.e):\(.v)-\(.r)"' | rpmsort | tail -1 | grep -o '[^:][^:]*$'
   ```
+
+  Take `<hash>-primary.xml.gz` from the `repomd.xml` href; AL2023's
+  is the unhashed `repodata/primary.xml.gz`.
 
   **Positive changelog cross-check (gated).** For a Moderate CVE Red Hat
   often defers the fix for months, so `fix_state` can stay Affected while
@@ -659,14 +677,17 @@ score yet. Red Hat's own score may be marked `draft`.
   ```
 
   On a hit, list the shipped Rocky `kernel` builds whose changelog
-  carries the entry, oldest first — the first line is *First fixed*
-  (Rocky may skip the exact RHEL NVR, so it can be later than the
-  bracket; the EL `os/` repos keep every build, and a build never drops
-  its own newest entries, so the oldest build still listing the entry is
-  the first one that shipped it):
+  carries the entry as `ver-rel`, oldest first — the first line is
+  *First fixed* (Rocky may skip the exact RHEL NVR, so it can be later
+  than the bracket; the EL `os/` repos keep every build, and a build
+  never drops its own newest entries, so the oldest build still
+  listing the entry is the first one that shipped it). The `jq` and
+  `grep -o` stages are the ones the highest-build recipe uses, for the
+  same reason: `xq -n` prints the raw `<version …/>` element, which
+  `rpmsort` would order lexically:
 
   ```
-  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | xq -n -x '//package[@name="kernel"][changelog[contains(., "CVE-2026-81000")]]/version' | sort -u | rpmsort
+  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | xq -n -x '//package[@name="kernel"][changelog[contains(., "CVE-2026-81000")]]/version' | sort -u | jq -R -r 'capture("epoch=\"(?<e>[^\"]+)\"") + capture("ver=\"(?<v>[^\"]+)\"") + capture("rel=\"(?<r>[^\"]+)\"") | "kernel-\(.e):\(.v)-\(.r)"' | rpmsort | grep -o '[^:][^:]*$'
   ```
 
   Fetch once with `| zcat | tee other.xml` and query the file if you
@@ -692,7 +713,12 @@ score yet. Red Hat's own score may be marked `draft`.
   `kernel*` version; check **all** kernel streams (AL2023
   ships `kernel`, opt-in `kernel6.12`, `kernel6.18` — a narrow-window bug can
   leave the default not-affected but an opt-in stream affected/fixed).
-  Current versions from `primary.xml.gz`.  **A CVE-grep miss can also
+  Current versions from `primary.xml.gz`, per stream, with the Rocky
+  highest-build recipe above (`jq`-built `kernel-<epoch>:<ver>-<rel>`
+  strings into `rpmsort`, never the raw element or `sort -V`; the
+  epoch matters here, AL2023 has bumped it) and the stream's name in
+  the `<name>` grep (`kernel`, `kernel6.12`, `kernel6.18`).  **A
+  CVE-grep miss can also
   mean the mapping is not published yet**, not that no fix exists: an
   ALAS lists only the CVEs known when it was issued, and amendments
   reach the repodata only when Amazon cuts the next immutable release
