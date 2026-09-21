@@ -130,7 +130,7 @@ a row is fixed.
 | Debian | 13 (trixie) | 6.12.107-1 | — | — | :x: Vulnerable |
 | Debian | 12 (bookworm) | 6.1.187-1 | — | — | :x: Vulnerable |
 | Debian | 12 (6.12 opt-in) | 6.12.107-1~deb12u1 | — | — | :x: Vulnerable |
-| Proxmox VE | 9 (default) | 7.0.14-17-pve | — | — | :warning: Staged — fix in 7.0.14-19, unpublished |
+| Proxmox VE | 9 (default) | 7.0.14-19-pve | 7.0.14-19 | 2026-09-18 | :white_check_mark: Fixed |
 | Proxmox VE | 8 (default) | 6.8.12-43-pve | — | — | :x: Vulnerable |
 | NixOS | master | 6.18.52 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | release-26.05 | 6.18.52 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
@@ -214,14 +214,12 @@ Proxmox ships its own Ubuntu-derived kernels, so Debian's status does
 not carry over. **PVE 8**'s `proxmox-kernel-6.8` is built from Ubuntu's
 6.8 kernel; Ubuntu's own tracker marks every one of its kernel series
 *needed* — no fixed Ubuntu build exists yet — and the packaging branch
-carries no TUN cherry-pick, so PVE 8 stays **vulnerable**. **PVE 9**'s
-`proxmox-kernel-7.0` picked up a named cherry-pick in the `7.0.14-19`
-changelog entry, dated 2026-09-18, but that build has not reached
-`pve-no-subscription` yet — the highest published there is still
-`7.0.14-17` — so the row is **staged**, not fixed, until the build
-ships. Elsewhere the fix still arrives either as a named cherry-pick,
-Proxmox's usual route for a security fix, or silently inside the next
-Ubuntu rebase once Ubuntu ships one.
+carries no TUN cherry-pick, so PVE 8 stays **vulnerable**. **PVE 9** is
+**fixed**: `proxmox-kernel-7.0` picked up a named cherry-pick in the
+`7.0.14-19` changelog entry, dated 2026-09-18, and that build has since
+reached `pve-no-subscription`. Elsewhere the fix still arrives either
+as a named cherry-pick, Proxmox's usual route for a security fix, or
+silently inside the next Ubuntu rebase once Ubuntu ships one.
 
 Both releases also still publish preview and superseded kernel series
 that Proxmox stopped updating before this disclosure and that will never
@@ -529,8 +527,8 @@ reproduced. Most readers never need it.
     metapackage version in that index.
   - `debian/changelog` on `origin/master` (7.0) carries the fix in the
     `7.0.14-19` entry ("fix CVE-2026-81000: net: tun: bound receive
-    headroom"), dated 2026-09-18; `pve-no-subscription` has not
-    published past `7.0.14-17`.
+    headroom"), dated 2026-09-18; `pve-no-subscription` now publishes
+    that build.
   - `debian/changelog` on `origin/bookworm-6.8` carries no
     CVE-2026-81000 or TUN headroom cherry-pick.
   - Ubuntu's tracker marks `linux` *needed* on every supported release,
