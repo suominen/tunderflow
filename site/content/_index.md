@@ -25,7 +25,7 @@ cover:
 | Discoverer | Asim Viladi Oglu Manizada (`@manizada`) |
 | Public disclosure | 2026-09-18 ([oss-security][oss-sec] and the [write-up][writeup]); reported to security@kernel.org in mid-July 2026 and held under a linux-distros@ embargo until the agreed publication date |
 | Public PoC | [manizada/TUNderflow][poc] — a working local-root exploit (Python 3), tuned for Fedora 44 and Ubuntu 24.04.4 kernels |
-| KEV / EPSS / CVSS | **Kernel CNA:** CVSS 3.1 **7.8 HIGH** (`AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`), mirrored by NVD. **Red Hat:** 7.0 (`AC:H`, marked *draft*), severity *Moderate*. Not in KEV; EPSS **0.16%** (6th percentile, scored 2026-09-16 — two days before the exploit went public) |
+| KEV / EPSS / CVSS | **Kernel CNA:** CVSS 3.1 **7.8 HIGH** (`AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`), mirrored by NVD. **Red Hat:** 7.8 (`AC:L`, marked *draft*), severity *Important* — revised up from an initial 7.0 (`AC:H`), *Moderate*. Not in KEV; EPSS **0.16%** (6th percentile, scored 2026-09-16 — two days before the exploit went public) |
 | Reachability | **TUN/TAP** (`/dev/net/tun`) plus a network-device path that propagates an oversized receive headroom to it — the PoC stacks a **netkit** device under **VXLAN** and an **Open vSwitch** datapath; the CNA also names OVS/veth/VXLAN and bridge/veth/GRETAP loops — all built with **`CAP_NET_ADMIN` inside an attacker-owned network namespace**. Where **unprivileged user namespaces** are enabled (the default on most distributions) any local user has that; where they are disabled the bug needs a container or process that already holds `CAP_NET_ADMIN`. See *Detection* and *Mitigation* |
 | Related | [DirtyAH6 (CVE-2026-80844)][dirtyah6], [PPPoEject (CVE-2026-68121)][pppoeject], and [DiagSpill (CVE-2026-74469)][diagspill] — the other three local-root bugs disclosed by the same researcher in the same announcement. Unrelated code paths, reported together and disclosed under one embargo; 7.2.4, 6.18.50, 6.12.109, 6.6.157, 6.1.188, 5.15.221, and 5.10.270 are the first stable releases to carry **all four** fixes — each sibling's own first fix is earlier (see its tracker) |
 {.summary}
@@ -134,10 +134,10 @@ a row is fixed.
 | NixOS | master | 6.18.53 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | release-26.05 | 6.18.53 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | Unstable | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| NixOS | Unstable (small) | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| NixOS | Unstable (nixpkgs) | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| NixOS | Unstable (small) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| NixOS | Unstable (nixpkgs) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | 26.05 | 6.18.52 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
-| NixOS | 26.05 (small) | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| NixOS | 26.05 (small) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | Rocky Linux / RHEL | 10 | 6.12.0-211.56.1.el10_2.0.1 | — | — | :x: Vulnerable — no RHSA yet |
 | Rocky Linux / RHEL | 9 | 5.14.0-687.49.1.el9_8 | — | — | :x: Vulnerable — no RHSA yet |
 | Rocky Linux / RHEL | 8 | 4.18.0-553.164.1.el8_10 | — | — | :x: Vulnerable — no RHSA yet |
@@ -276,11 +276,11 @@ EL10 (6.12-based), EL9 (5.14-based), EL8 (4.18-based) — postdate the
 v4.6 introduction and carry TUN/TAP, so all are in-window. Red Hat's
 security data (record public since 2026-09-11) marks the `kernel` and
 `kernel-rt` packages **Affected** for RHEL 7, 8, 9, and 10 with no fixed
-release and no RHSA yet (RHEL 6 is out of support scope), so every
-stream is **vulnerable pending an advisory**. Red Hat's own draft score
-is 7.0 with severity *Moderate* — it rates the attack complexity high —
-which usually means the fix rides a regular batch kernel update rather
-than an out-of-cycle one. The `kernel-rt` real-time variant is listed
+release and no RHSA yet (RHEL 6 predates the bug and is marked *Not
+affected*), so every in-support stream is **vulnerable pending an
+advisory**. Red Hat's own draft score was revised from an initial 7.0
+(`AC:H`, *Moderate*) up to **7.8** (`AC:L`, *Important*), now matching
+the kernel CNA's own vector. The `kernel-rt` real-time variant is listed
 Affected alongside the standard kernel and will be fixed by the same
 advisories. Rocky rebuilds RHEL's kernels unchanged, so its fixes track
 Red Hat's; AlmaLinux is typically the fastest rebuild and the leading
@@ -477,9 +477,11 @@ reproduced. Most readers never need it.
   `securitydata` JSON, the FIRST EPSS API, and the CISA KEV feed):
   - NVD published the record 2026-09-11; its only metric is the CNA's
     7.8 vector.
-  - Red Hat: `cvss3_base_score` 7.0
-    (`AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H`), status `draft`.
-  - Red Hat `threat_severity`: Moderate.
+  - Red Hat: `cvss3_base_score` revised from 7.0
+    (`AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H`) to 7.8
+    (`AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H`), status still `draft`.
+  - Red Hat `threat_severity`: revised from Moderate to Important.
+  - Red Hat `package_state`: RHEL 6 `kernel` `fix_state` *Not affected*.
   - EPSS 0.00164 (percentile 0.0599), scored 2026-09-16.
   - Not present in the KEV catalogue.
 - **Disclosure** (via the oss-security archive, the researcher's
