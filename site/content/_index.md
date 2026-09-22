@@ -118,9 +118,9 @@ a row is fixed.
 | Distribution | Release | Current kernel | First fixed | Fixed since | Status |
 |---|---|---|---|---|---|
 | Linux kernel | mainline | 7.3-rc4 | 7.3-rc1 | 2026-08-30 | :white_check_mark: Fixed — carries `447c9303942c` |
-| Linux kernel | 7.2.x | 7.2.6 | 7.2.4 | 2026-09-07 | :white_check_mark: Fixed |
-| Linux kernel | 6.18.x | 6.18.52 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed — LTS |
-| Linux kernel | 6.12.x | 6.12.110 | 6.12.109 | 2026-09-07 | :white_check_mark: Fixed — LTS |
+| Linux kernel | 7.2.x | 7.2.7 | 7.2.4 | 2026-09-07 | :white_check_mark: Fixed |
+| Linux kernel | 6.18.x | 6.18.53 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed — LTS |
+| Linux kernel | 6.12.x | 6.12.111 | 6.12.109 | 2026-09-07 | :white_check_mark: Fixed — LTS |
 | Linux kernel | 6.6.x | 6.6.157 | 6.6.157 | 2026-09-14 | :white_check_mark: Fixed — LTS |
 | Linux kernel | 6.1.x | 6.1.188 | 6.1.188 | 2026-09-14 | :white_check_mark: Fixed — LTS |
 | Linux kernel | 5.15.x | 5.15.221 | 5.15.221 | 2026-09-14 | :white_check_mark: Fixed — LTS |
@@ -131,9 +131,9 @@ a row is fixed.
 | Debian | 12 (bookworm) | 6.1.187-1 | — | — | :x: Vulnerable |
 | Debian | 12 (6.12 opt-in) | 6.12.107-1~deb12u1 | — | — | :x: Vulnerable |
 | Proxmox VE | 9 (default) | 7.0.14-19-pve | 7.0.14-19 | 2026-09-18 | :white_check_mark: Fixed |
-| NixOS | master | 6.18.52 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
-| NixOS | release-26.05 | 6.18.52 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
-| NixOS | Unstable | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| NixOS | master | 6.18.53 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
+| NixOS | release-26.05 | 6.18.53 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
+| NixOS | Unstable | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (small) | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (nixpkgs) | 6.18.52 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | 26.05 | 6.18.52 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
