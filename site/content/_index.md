@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-09-22
+lastmod: 2026-09-23
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -125,8 +125,8 @@ a row is fixed.
 | Linux kernel | 6.1.x | 6.1.188 | 6.1.188 | 2026-09-14 | :white_check_mark: Fixed — LTS |
 | Linux kernel | 5.15.x | 5.15.221 | 5.15.221 | 2026-09-14 | :white_check_mark: Fixed — LTS |
 | Linux kernel | 5.10.x | 5.10.270 | 5.10.270 | 2026-09-14 | :white_check_mark: Fixed — LTS |
-| Debian | sid (unstable) | 7.2.6-1 | 7.2.6-1 | 2026-09-17 | :white_check_mark: Fixed |
-| Debian | forky (testing) | 7.1.13-1 | — | — | :x: Vulnerable — 7.1.y EOL |
+| Debian | sid (unstable) | 7.2.7-1 | 7.2.6-1 | 2026-09-17 | :white_check_mark: Fixed |
+| Debian | forky (testing) | 7.2.6-1 | 7.2.6-1 | 2026-09-17 | :white_check_mark: Fixed |
 | Debian | 13 (trixie) | 6.12.107-1 | — | — | :x: Vulnerable |
 | Debian | 12 (bookworm) | 6.1.187-1 | — | — | :x: Vulnerable |
 | Debian | 12 (6.12 opt-in) | 6.12.107-1~deb12u1 | — | — | :x: Vulnerable |
@@ -136,7 +136,7 @@ a row is fixed.
 | NixOS | Unstable | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (small) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (nixpkgs) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| NixOS | 26.05 | 6.18.52 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
+| NixOS | 26.05 | 6.18.53 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
 | NixOS | 26.05 (small) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | Rocky Linux / RHEL | 10 | 6.12.0-211.56.1.el10_2.0.1 | — | — | :x: Vulnerable — no RHSA yet |
 | Rocky Linux / RHEL | 9 | 5.14.0-687.49.1.el9_8 | — | — | :x: Vulnerable — no RHSA yet |
@@ -176,12 +176,11 @@ floor.
 ### Debian
 
 Debian's status splits on which upstream branch each suite tracks.
-**sid** is **fixed** since the `7.2.6-1` upload — the first Debian
-kernel past the 7.2 branch's `7.2.4` first fix (sid went straight from
-7.1.13 to 7.2.6). **forky** (testing, the future Debian 14) is still on
-the **7.1** line, which went end-of-life upstream at 7.1.13 without the
-fix: no 7.1 upload can close it, so forky becomes fixed only when the
-7.2 kernel migrates from sid. **trixie** (Debian 13) rides 6.12 and its
+**sid** and **forky** are both **fixed**: sid's `7.2.6-1` upload — the
+first Debian kernel past the 7.2 branch's `7.2.4` first fix (sid went
+straight from 7.1.13 to 7.2.6) — migrated to testing on 2026-09-17,
+carrying forky off the dead-ended **7.1** line without any 7.1 upload
+ever closing it. **trixie** (Debian 13) rides 6.12 and its
 `trixie-security` kernel predates the branch's `6.12.109` first fix;
 **bookworm** (Debian 12) rides 6.1 and its `bookworm-security` kernel
 stops one point release short of the `6.1.188` first fix. The security
@@ -504,19 +503,18 @@ reproduced. Most readers never need it.
 
 - **Debian** (via the security tracker JSON, the dak madison API, and
   snapshot.debian.org):
-  - Tracker: `sid` *resolved*, fixed version `7.2.6-1`.
-  - Tracker: `forky`, `trixie`, and `bookworm` *open*.
+  - Tracker: `sid` and `forky` *resolved*, fixed version `7.2.6-1` for
+    both.
+  - Tracker: `trixie` and `bookworm` *open*.
   - Tracker: no `bullseye` entry (LTS ended 2026-08-31).
   - Tracker: no `linux-6.12` entry.
-  - sid *Fixed since*: `first_seen` of the `7.2.6-1` source files on
-    snapshot.debian.org, 2026-09-17T02:27:04Z.
+  - sid/forky *Fixed since*: `first_seen` of the `7.2.6-1` source files
+    on snapshot.debian.org, 2026-09-17T02:27:04Z.
   - *Current kernel* per suite is the madison version of `linux` in
     `sid`, `forky`, `trixie`/`trixie-security`, and
     `bookworm`/`bookworm-security` — the `-security` version where one
     exists — and of `linux-6.12` in `bookworm-security` for the opt-in
     row.
-  - forky's kernel is the 7.1 line, which upstream ended at 7.1.13
-    without the fix.
 - **Proxmox VE** (via `pve-no-subscription` `Packages.gz` for `trixie`,
   the `~/src/proxmox/pve-kernel` changelogs, and Ubuntu's CVE JSON):
   - `proxmox-default-kernel` depends on `proxmox-kernel-7.0` on trixie.
