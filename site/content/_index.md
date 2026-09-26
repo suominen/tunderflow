@@ -135,11 +135,11 @@ a row is fixed.
 | NixOS | release-26.05 | 6.18.54 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | Unstable | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (small) | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| NixOS | Unstable (nixpkgs) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| NixOS | Unstable (nixpkgs) | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | 26.05 | 6.18.53 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
-| NixOS | 26.05 (small) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| Rocky Linux / RHEL | 10 | 6.12.0-211.58.1.el10_2 | — | — | :x: Vulnerable — RHSA out, Rocky pending |
-| Rocky Linux / RHEL | 9 | 5.14.0-687.51.1.el9_8 | 5.14.0-687.51.1.el9_8 | 2026-09-25 | :white_check_mark: Fixed |
+| NixOS | 26.05 (small) | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| Rocky Linux / RHEL | 10 | 6.12.0-211.60.1.el10_2 | 6.12.0-211.60.1.el10_2 | 2026-09-25 | :white_check_mark: Fixed |
+| Rocky Linux / RHEL | 9 | 5.14.0-687.52.1.el9_8 | 5.14.0-687.51.1.el9_8 | 2026-09-25 | :white_check_mark: Fixed |
 | Rocky Linux / RHEL | 8 | 4.18.0-553.168.1.el8_10 | 4.18.0-553.168.1.el8_10 | 2026-09-24 | :white_check_mark: Fixed |
 | Amazon Linux | 2023 (default) | 6.1.186-228.376 | — | — | :x: Vulnerable — no ALAS yet |
 | Amazon Linux | 2023 (6.12 opt-in) | 6.12.103-129.197 | — | — | :x: Vulnerable — no ALAS yet |
@@ -283,14 +283,13 @@ later `kernel-0:5.14.0-687.51.1.el9_8` for EL9 via RHSA-2026:71232 and
 `kernel-0:6.12.0-211.59.1.el10_2` for EL10 via RHSA-2026:71233, and
 `kernel-0:3.10.0-1160.164.1.el7` for RHEL 7 (Extended Lifecycle Support)
 via RHSA-2026:71687 on 2026-09-24 — RHEL 7 has no Rocky rebuild, since
-Rocky does not ship EL7. Rocky has since rebuilt
-past two of those NVRs: EL8 shipped `kernel-0:4.18.0-553.168.1.el8_10`
-— one build past the RHSA's exact NVR, Rocky's usual pattern — on
-2026-09-24, and EL9 shipped `kernel-0:5.14.0-687.51.1.el9_8`, the exact
-RHSA NVR, on 2026-09-25; both *Rocky Linux / RHEL* rows are now fixed.
-EL10's highest BaseOS build has not yet reached
-`6.12.0-211.59.1.el10_2`, so that row stays vulnerable until Rocky
-rebuilds past it. Red Hat's score,
+Rocky does not ship EL7. Rocky has since rebuilt past all three NVRs:
+EL8 shipped `kernel-0:4.18.0-553.168.1.el8_10` — one build past the
+RHSA's exact NVR, Rocky's usual pattern — on 2026-09-24, EL9 shipped
+`kernel-0:5.14.0-687.51.1.el9_8`, the exact RHSA NVR, on 2026-09-25,
+and EL10 shipped `kernel-0:6.12.0-211.60.1.el10_2` — again one build
+past the RHSA's exact NVR — also on 2026-09-25. **All three tracked EL
+releases, and their Rocky rebuilds, are now fixed.** Red Hat's score,
 revised from an initial 7.0 (`AC:H`, *Moderate*) up to **7.8** (`AC:L`,
 *Important*) matching the kernel CNA's own vector, is a **verified**
 score. Rocky rebuilds RHEL's kernels unchanged, so its fixes track Red
@@ -574,12 +573,12 @@ reproduced. Most readers never need it.
     via RHSA-2026:71016), EL9 via RHSA-2026:71232, EL10 via
     RHSA-2026:71233, RHEL 7 (Extended Lifecycle Support) via
     RHSA-2026:71687 (`kernel-rt` via RHSA-2026:71657).
-  - Rocky's BaseOS builds now reach the EL8 and EL9 NVRs:
-    `4.18.0-553.168.1.el8_10` (uploaded 2026-09-24) and
-    `5.14.0-687.51.1.el9_8` (uploaded 2026-09-25), per the
-    `dl.rockylinux.org` `Packages/k/` directory listings.
-  - Rocky's EL10 highest BaseOS build has not yet reached the
-    `6.12.0-211.59.1.el10_2` NVR.
+  - Rocky's BaseOS builds now reach the EL8, EL9, and EL10 NVRs:
+    `4.18.0-553.168.1.el8_10` (uploaded 2026-09-24),
+    `5.14.0-687.51.1.el9_8` (uploaded 2026-09-25), and
+    `6.12.0-211.60.1.el10_2` (uploaded 2026-09-25, one build past the
+    RHSA's `6.12.0-211.59.1.el10_2` NVR), per the `dl.rockylinux.org`
+    `Packages/k/` directory listings.
   - hydra `cvss3.status`: `verified`.
   - *Current kernel* per release is the highest `kernel` `ver`/`rel`
     in `primary.xml.gz`, compared by RPM rules — a release with more
