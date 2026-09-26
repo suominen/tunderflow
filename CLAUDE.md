@@ -553,7 +553,13 @@ score yet. Red Hat's own score may be marked `draft`.
   series (`https://ubuntu.com/security/cves/CVE-2026-81000.json`, the
   `packages[].statuses[]` entries — `released` plus version); base ≥
   Ubuntu's fixed version means the PVE build carries the fix even with
-  no cherry-pick line. Prove it rather than trusting the version
+  no cherry-pick line. ubuntu.com intermittently stalls for 20–30 s and
+  then answers 504, so fetch with a per-attempt timeout and retries
+  (`curl -fsSL --retry 4 --retry-all-errors --retry-delay 10 -m 45`)
+  rather than giving up on the first error; the search endpoint
+  `https://ubuntu.com/security/cves.json?q=CVE-2026-81000` returns the same
+  record under `.cves[]` (select the exact `id`) as an alternate. Prove
+  it rather than trusting the version
   compare: the Ubuntu build's changelog at
   `https://changelogs.ubuntu.com/changelogs/pool/main/l/linux/linux_<ver>/changelog`
   lists every upstream stable subject it pulled in, so grep it for the
