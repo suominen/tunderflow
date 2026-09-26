@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-09-25
+lastmod: 2026-09-26
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -131,10 +131,10 @@ a row is fixed.
 | Debian | 12 (bookworm) | 6.1.187-1 | — | — | :x: Vulnerable |
 | Debian | 12 (6.12 opt-in) | 6.12.107-1~deb12u1 | — | — | :x: Vulnerable |
 | Proxmox VE | 9 (default) | 7.0.14-19-pve | 7.0.14-19 | 2026-09-18 | :white_check_mark: Fixed |
-| NixOS | master | 6.18.53 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
-| NixOS | release-26.05 | 6.18.53 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
+| NixOS | master | 6.18.54 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
+| NixOS | release-26.05 | 6.18.54 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | Unstable | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| NixOS | Unstable (small) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| NixOS | Unstable (small) | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (nixpkgs) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | 26.05 | 6.18.53 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
 | NixOS | 26.05 (small) | 6.18.53 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
@@ -280,8 +280,10 @@ three tracked EL releases are now fixed upstream of Rocky**: Red Hat
 shipped `kernel-0:4.18.0-553.167.1.el8_10` for EL8 via RHSA-2026:71213
 (and the `kernel-rt` counterpart via RHSA-2026:71016), then a day
 later `kernel-0:5.14.0-687.51.1.el9_8` for EL9 via RHSA-2026:71232 and
-`kernel-0:6.12.0-211.59.1.el10_2` for EL10 via RHSA-2026:71233. RHEL 7
-remains **vulnerable pending an advisory**. Rocky has since rebuilt
+`kernel-0:6.12.0-211.59.1.el10_2` for EL10 via RHSA-2026:71233, and
+`kernel-0:3.10.0-1160.164.1.el7` for RHEL 7 (Extended Lifecycle Support)
+via RHSA-2026:71687 on 2026-09-24 — RHEL 7 has no Rocky rebuild, since
+Rocky does not ship EL7. Rocky has since rebuilt
 past two of those NVRs: EL8 shipped `kernel-0:4.18.0-553.168.1.el8_10`
 — one build past the RHSA's exact NVR, Rocky's usual pattern — on
 2026-09-24, and EL9 shipped `kernel-0:5.14.0-687.51.1.el9_8`, the exact
@@ -563,14 +565,15 @@ reproduced. Most readers never need it.
     are at or above their branches' first-fixed releases.
 - **Rocky Linux / RHEL** (via Red Hat's hydra `securitydata` JSON, and
   the Rocky BaseOS `x86_64` `primary.xml.gz`):
-  - `package_state`: plain `kernel` *Affected* on RHEL 7 only — EL8,
-    EL9, and EL10 have each dropped off `package_state` now that a
+  - `package_state`: plain `kernel` no longer lists RHEL 7, 8, 9, or 10
+    as *Affected* — each has dropped off `package_state` now that a
     fixed plain `kernel` build exists; `kernel-rt` still shows
-    *Affected* on RHEL 7, 9, and 10.
-  - `package_state`: RHEL 6 *Out of support scope*.
+    *Affected* on RHEL 9 and 10.
+  - `package_state`: RHEL 6 `kernel` *Not affected*.
   - hydra `affected_release`: EL8 fixed via RHSA-2026:71213 (`kernel-rt`
     via RHSA-2026:71016), EL9 via RHSA-2026:71232, EL10 via
-    RHSA-2026:71233.
+    RHSA-2026:71233, RHEL 7 (Extended Lifecycle Support) via
+    RHSA-2026:71687 (`kernel-rt` via RHSA-2026:71657).
   - Rocky's BaseOS builds now reach the EL8 and EL9 NVRs:
     `4.18.0-553.168.1.el8_10` (uploaded 2026-09-24) and
     `5.14.0-687.51.1.el9_8` (uploaded 2026-09-25), per the
