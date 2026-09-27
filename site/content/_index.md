@@ -148,24 +148,12 @@ a row is fixed.
 
 ### Linux kernel
 
-The fix reached Linus in **v7.3-rc1** (tagged 2026-08-30), through the
-netdev tree, some six weeks after the mid-July report. The stable
-backports landed in two rounds. On **2026-09-07** the **7.2.4**
-(`0ada54ea63e4`), **6.18.50** (`e098d9cc8859`), and **6.12.109**
-(`379d85c7f25f`) releases picked it up; on **2026-09-14** the
-**6.6.157** (`010eee265d6b`), **6.1.188** (`18ef24cdb2eb`),
-**5.15.221** (`708e87937de9`), and **5.10.270** (`ad715e713610`)
-releases followed — each the same fix by subject, confirmed present on
-its `linux-*.y` branch. Every maintained upstream kernel line now
-carries the fix; these releases are also the first to carry all four of
-the announcement's fixes.
+The fix reached mainline in **v7.3-rc1**, through the netdev tree, and
+has been backported to every maintained stable and long-term line.
 
-**7.1.y never received it.** The 7.1 line reached end of life at
-**7.1.13** (per `kernel.org`'s `finger_banner`) before the backport was
-queued, so every 7.1 release is permanently vulnerable: a host on a 7.1
-kernel has no fix coming on that line and needs to move to 7.2 or to a
-longterm branch. Debian's testing suite currently rides it — see
-*Debian*.
+**7.1.x never received it.** The 7.1 line reached end of life before the
+backport was queued, so every 7.1 release stays vulnerable — move to 7.2
+or a long-term line.
 
 To check a tree directly: a fixed `tun_set_headroom()` (in
 `drivers/net/tun.c`) computes a `max_headroom` from `SKB_MAX_HEAD(0)`
@@ -175,33 +163,22 @@ floor.
 
 ### Debian
 
-Debian's status splits on which upstream branch each suite tracks.
-**sid** and **forky** are both **fixed**: sid's `7.2.6-1` upload — the
-first Debian kernel past the 7.2 branch's `7.2.4` first fix (sid went
-straight from 7.1.13 to 7.2.6) — migrated to testing on 2026-09-17,
-carrying forky off the dead-ended **7.1** line without any 7.1 upload
-ever closing it. **trixie** (Debian 13) rides 6.12 and its
-`trixie-security` kernel predates the branch's `6.12.109` first fix;
-**bookworm** (Debian 12) rides 6.1 and its `bookworm-security` kernel
-stops one point release short of the `6.1.188` first fix. The security
-tracker lists both as *open*. Debian may close the gap by rebasing onto
-the fixed point release or with a `-security` upload that cherry-picks
-the fix into a build numbered below it — so the security tracker, not
-the version number, says when a suite is fixed.
+forky is testing, the future Debian 14. bookworm's opt-in 6.12 kernel
+is the `linux-6.12` package in `bookworm-security`: trixie's kernel
+rebuilt for bookworm.
 
-bookworm also offers an **opt-in newer kernel**, the `linux-6.12`
-source package in `bookworm-security` (trixie's kernel rebuilt for
-bookworm). Its current build also predates `6.12.109`, and the security
-tracker carries no `linux-6.12` entry for this CVE yet, so it is
-**vulnerable** like the default.
+Debian may fix a suite with a `-security` upload that cherry-picks the
+fix into a build numbered below the upstream first fix, so trust the
+security tracker, not the version number. The tracker has no separate
+`linux-6.12` entry for this CVE; the opt-in follows the 6.12 line's
+fixes.
 
-**bullseye (Debian 11) reached the end of its LTS support window on
-2026-08-31**, before this bug was disclosed, so it will never receive
-the fix: both its 5.10-line default kernel and the former `linux-6.1`
-opt-in are permanently **vulnerable**. A host still on bullseye should
-upgrade to bookworm or newer.
+**bullseye (Debian 11) left LTS support on 2026-08-31**, before this bug
+was disclosed. Its 5.10-line default kernel and the former `linux-6.1`
+opt-in stay vulnerable, and no fix is coming — upgrade to bookworm or
+newer.
 
-Debian's stock kernels meet the bug's pre-requisites: `tun`,
+Debian's stock kernels meet the bug's prerequisites: `tun`,
 `openvswitch`, and `vxlan` ship as modules, netkit is built in
 (`CONFIG_NETKIT=y`), and unprivileged user namespaces are enabled by
 default (`kernel.unprivileged_userns_clone = 1`).
@@ -209,107 +186,95 @@ default (`kernel.unprivileged_userns_clone = 1`).
 ### Proxmox VE
 
 Proxmox ships its own Ubuntu-derived kernels, so Debian's status does
-not carry over. **PVE 9** is **fixed**: `proxmox-kernel-7.0` picked up
-a named cherry-pick in the `7.0.14-19` changelog entry, dated
-2026-09-18, and that build has since reached `pve-no-subscription`.
+not carry over. PVE 9's default `proxmox-kernel-7.0` carries a named
+cherry-pick of the fix.
 
-**PVE 8** reached end of life in **August 2026**, before this tracker
-existed and before any fix reached its kernels: its default
-`proxmox-kernel-6.8` and the `bookworm-backports` opt-in
-`proxmox-kernel-6.14` are permanently **vulnerable**, and no fix is
-coming. A host still on PVE 8 should upgrade to PVE 9.
+- **PVE 8 reached end of life in August 2026**, before any fix reached
+  its kernels. Its default `proxmox-kernel-6.8` and the
+  `bookworm-backports` opt-in `proxmox-kernel-6.14` stay vulnerable,
+  and no fix is coming — upgrade to PVE 9.
+- **Abandoned preview series** that PVE 9 still publishes,
+  `proxmox-kernel-6.17` and `proxmox-kernel-6.14`, will never get the
+  fix. A host booting one should switch to the default kernel.
 
-PVE 9 also still publishes preview kernel series that Proxmox stopped
-updating before this disclosure and that will never receive the fix:
-`proxmox-kernel-6.17` (last built July 2026) and `-6.14` (May 2026). A
-host booting either of them stays vulnerable until it switches to the
-current default kernel, which carries the fix.
+TUN/TAP and Open vSwitch are routinely in use on Proxmox hosts: every
+VM's network interface is a TAP device, and `openvswitch-switch` is a
+supported bridge backend. That does not widen *who* can trigger the
+bug — the attacker still needs `CAP_NET_ADMIN` over a network namespace.
 
-Proxmox hosts are also where TUN/TAP and Open vSwitch are routinely in
-use: every VM's network interface is a TAP device, and
-`openvswitch-switch` is a supported bridge backend. That does not widen
-*who* can trigger the bug — the attacker still needs `CAP_NET_ADMIN`
-over a network namespace — but two audiences are in scope: an
-unprivileged LXC container is exactly such a namespace, and an ordinary
-shell account on the host has one wherever unprivileged user namespaces
-are enabled, which is the default in the Ubuntu kernels PVE builds from.
+Two audiences have such a namespace:
+
+- an unprivileged LXC container;
+- an ordinary shell account on the host, wherever unprivileged user
+  namespaces are enabled — the default in the Ubuntu kernels PVE builds
+  from.
+
 Check the host with the *Detection* commands rather than assuming either
 way.
 
 ### NixOS
 
-Every tracked ref's default `linuxPackages` is `linux_6_18`, at or above
-the 6.18 branch's `6.18.50` first-fixed release, so every tracked ref is
-**fixed**; they differ only in when each first published that bump.
-Kernel updates land on nixpkgs `master` first, and each channel
-publishes them once its Hydra jobset passes. A channel can therefore sit
-a few days behind `master`, and an unstable channel is not necessarily
-ahead of a release channel. The `-small` channels
-(`nixos-unstable-small`, `nixos-26.05-small`) are gated on a reduced
-jobset and pick up kernel updates fastest. nixpkgs also pins the older
-longterm series (`linux_6_12`, `linux_6_6`, `linux_6_1`, `linux_5_15`,
-`linux_5_10`) at or above their branches' first fix on every tracked
-ref, so a host overriding the default to one of them is fixed as well —
-as long as it tracks a ref current enough to have picked up the
-mid-September bumps.
+Every NixOS channel and branch in the table defaults to
+`linux_6_18` (`linuxPackages`), which carries the fix.
+nixpkgs also pins the older long-term series
+(`linux_6_12`, `linux_6_6`, `linux_6_1`, `linux_5_15`, `linux_5_10`) at
+fixed releases, so a host overriding the default is fixed too, as long
+as it tracks a ref current enough to have picked up the mid-September
+bumps.
 
-The `master` and `release-26.05` rows are the git branches the fix lands
-on. They are not Hydra-gated, so they carry a kernel bump from the
-moment the commit lands — typically a day or more before a channel
-republishes it, which is what the *Fixed since* dates down the group
-show. They are development branches, not deployment targets.
+Kernel updates land on nixpkgs `master` first and reach each channel
+once its Hydra jobset passes, so a channel can sit a few days behind
+`master`. The `-small` channels (`nixos-unstable-small`,
+`nixos-26.05-small`) run a reduced jobset and pick up kernel updates
+fastest.
 
-Flake inputs map onto these directly.
-`github:NixOS/nixpkgs/nixos-unstable` tracks the `nixos-unstable`
-channel — the GitHub channel branches are updated to exactly the
-published channel pins — and a bare `github:NixOS/nixpkgs` with no ref
-follows `master`. A bare `nixpkgs` registry input resolves by default to
-`nixpkgs-unstable`, which is a separate channel aimed at Nix users on
-other operating systems rather than at NixOS, so it is not gated on the
-NixOS tests and can hold a different kernel from `nixos-unstable`.
+Which ref a flake input follows:
+
+- `github:NixOS/nixpkgs/nixos-unstable` and
+  `github:NixOS/nixpkgs/nixos-26.05` follow those channels — the GitHub
+  channel branches are updated to exactly the published channel pins.
+- A bare `github:NixOS/nixpkgs` with no ref follows `master`, and
+  `github:NixOS/nixpkgs/release-26.05` follows that branch. Both are
+  ungated development branches — they carry a kernel bump as soon as it
+  lands, often a day or more before a channel publishes it.
+- A bare `nixpkgs` registry input resolves by default to
+  the `nixpkgs-unstable` channel: a separate channel aimed at
+  Nix on other operating systems, not gated on the NixOS tests.
 
 ### Rocky Linux / RHEL family
 
-RHEL-family kernels are long-lived forks; all three in-support lines —
-EL10 (6.12-based), EL9 (5.14-based), EL8 (4.18-based) — postdate the
-v4.6 introduction and carry TUN/TAP, so all are in-window. Red Hat's
-security data (record public since 2026-09-11) marked the `kernel` and
-`kernel-rt` packages **Affected** for RHEL 7, 8, 9, and 10 with no
-advisory (RHEL 6 predates the bug and is marked *Not affected*). **All
-three tracked EL releases are now fixed upstream of Rocky**: Red Hat
-shipped `kernel-0:4.18.0-553.167.1.el8_10` for EL8 via RHSA-2026:71213
-(and the `kernel-rt` counterpart via RHSA-2026:71016), then a day
-later `kernel-0:5.14.0-687.51.1.el9_8` for EL9 via RHSA-2026:71232 and
-`kernel-0:6.12.0-211.59.1.el10_2` for EL10 via RHSA-2026:71233, and
-`kernel-0:3.10.0-1160.164.1.el7` for RHEL 7 (Extended Lifecycle Support)
-via RHSA-2026:71687 on 2026-09-24 — RHEL 7 has no Rocky rebuild, since
-Rocky does not ship EL7. Rocky has since rebuilt past all three NVRs:
-EL8 shipped `kernel-0:4.18.0-553.168.1.el8_10` — one build past the
-RHSA's exact NVR, Rocky's usual pattern — on 2026-09-24, EL9 shipped
-`kernel-0:5.14.0-687.51.1.el9_8`, the exact RHSA NVR, on 2026-09-25,
-and EL10 shipped `kernel-0:6.12.0-211.60.1.el10_2` — again one build
-past the RHSA's exact NVR — also on 2026-09-25. **All three tracked EL
-releases, and their Rocky rebuilds, are now fixed.** Red Hat's score,
-revised from an initial 7.0 (`AC:H`, *Moderate*) up to **7.8** (`AC:L`,
-*Important*) matching the kernel CNA's own vector, is a **verified**
-score. Rocky rebuilds RHEL's kernels unchanged, so its fixes track Red
-Hat's; AlmaLinux is typically the fastest rebuild and the leading
-indicator. Oracle Linux and CloudLinux track the RHEL determination.
+All three EL lines — EL10 (6.12-based), EL9 (5.14-based) and EL8
+(4.18-based) — postdate the v4.6 introduction and carry TUN/TAP, so all
+are in-window. RHEL 6 predates the bug and is not affected.
+
+Red Hat advisories:
+
+- **RHEL 10:** RHSA-2026:71233.
+- **RHEL 9:** RHSA-2026:71232.
+- **RHEL 8:** RHSA-2026:71213 (`kernel-rt` RHSA-2026:71016).
+- **RHEL 7 ELS:** RHSA-2026:71687 (`kernel-rt` RHSA-2026:71657). Rocky
+  ships no EL7.
+
+On RHEL 9 and 10 the real-time kernel (`kernel-rt`) is fixed by the
+same advisories as the regular kernel; RHEL 8 and 7 have separate
+`kernel-rt` advisories, listed with the kernel's.
+
+AlmaLinux, CloudLinux and Oracle Linux's Red Hat Compatible Kernel
+rebuild RHEL's kernel, so they get the fix as they rebuild Red Hat's
+advisories.
 
 ### Amazon Linux
 
-All three AL2023 kernel streams are **vulnerable**: the default `kernel`
-package (6.1 line) and the opt-in `kernel6.12` and `kernel6.18` streams
-all ship builds below their branches' first fix (6.1.188, 6.12.109, and
-6.18.50), and the repodata's `updateinfo.xml` names no ALAS for this CVE
-yet. Amazon often backports a fix into a build *below* the upstream
-threshold, so only an ALAS confirms a fix — and the CVE-to-advisory
-mapping can trail the advisory itself by weeks in the published repodata.
+The three AL2023 streams are the default `kernel` package (6.1 line) and
+the opt-in `kernel6.12` and `kernel6.18` packages. Amazon often
+backports a fix into a build numbered *below* the upstream first fix, so
+judge an AL2023 kernel by its ALAS, not its version number. An ALAS can
+also be amended to name this CVE weeks after it was issued, so a recent
+kernel ALAS that doesn't name it yet may still carry the fix.
 
 **Amazon Linux 2 reached end of support on 2026-06-30**, before this bug
-was disclosed, so none of its kernel streams will receive the fix: every
-AL2 kernel from 4.14 on is in-window and permanently **vulnerable**. A
-host still on AL2 should migrate to AL2023.
+was disclosed. Its kernels, 4.14 on, stay vulnerable, with no fix
+coming — migrate to AL2023.
 
 ## Detection
 
