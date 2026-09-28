@@ -130,7 +130,7 @@ a row is fixed.
 | Debian | 13 (trixie) | 6.12.107-1 | — | — | :x: Vulnerable |
 | Debian | 12 (bookworm) | 6.1.187-1 | — | — | :x: Vulnerable |
 | Debian | 12 (6.12 opt-in) | 6.12.107-1~deb12u1 | — | — | :x: Vulnerable |
-| Proxmox VE | 9 (default) | 7.0.14-19-pve | 7.0.14-19 | 2026-09-18 | :white_check_mark: Fixed |
+| Proxmox VE | 9 (default) | 7.0.14-19 | 7.0.14-19 | 2026-09-18 | :white_check_mark: Fixed |
 | NixOS | master | 6.18.54 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | release-26.05 | 6.18.54 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | Unstable | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
