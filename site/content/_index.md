@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-09-28
+lastmod: 2026-09-29
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -141,9 +141,9 @@ a row is fixed.
 | Rocky Linux / RHEL | 10 | 6.12.0-211.60.1.el10_2 | 6.12.0-211.60.1.el10_2 | 2026-09-25 | :white_check_mark: Fixed |
 | Rocky Linux / RHEL | 9 | 5.14.0-687.52.1.el9_8 | 5.14.0-687.51.1.el9_8 | 2026-09-25 | :white_check_mark: Fixed |
 | Rocky Linux / RHEL | 8 | 4.18.0-553.168.1.el8_10 | 4.18.0-553.168.1.el8_10 | 2026-09-24 | :white_check_mark: Fixed |
-| Amazon Linux | 2023 (default) | 6.1.186-228.376 | — | — | :x: Vulnerable — no ALAS yet |
-| Amazon Linux | 2023 (6.12 opt-in) | 6.12.103-129.197 | — | — | :x: Vulnerable — no ALAS yet |
-| Amazon Linux | 2023 (6.18 opt-in) | 6.18.48-109.150 | — | — | :x: Vulnerable — no ALAS yet |
+| Amazon Linux | 2023 (default) | 6.1.188-233.385 | 6.1.186-228.376 | 2026-09-18 | :white_check_mark: Fixed — ALAS2023-2026-3104 |
+| Amazon Linux | 2023 (6.12 opt-in) | 6.12.110-135.201 | 6.12.103-129.197 | 2026-09-18 | :white_check_mark: Fixed — ALAS2023-2026-3103 |
+| Amazon Linux | 2023 (6.18 opt-in) | 6.18.51-120.162 | 6.18.48-109.150 | 2026-09-18 | :white_check_mark: Fixed — ALAS2023-2026-3102 |
 {.distros}
 
 ### Linux kernel
@@ -265,12 +265,16 @@ advisories.
 
 ### Amazon Linux
 
-The three AL2023 streams are the default `kernel` package (6.1 line) and
-the opt-in `kernel6.12` and `kernel6.18` packages. Amazon often
-backports a fix into a build numbered *below* the upstream first fix, so
-judge an AL2023 kernel by its ALAS, not its version number. An ALAS can
-also be amended to name this CVE weeks after it was issued, so a recent
-kernel ALAS that doesn't name it yet may still carry the fix.
+All three AL2023 streams — the default `kernel` package (6.1 line) and
+the opt-in `kernel6.12` and `kernel6.18` packages — are fixed. Amazon
+backported the fix into a build numbered below the upstream first-fix
+release, so each stream's ALAS names a fixed NVR below its own current
+build.
+
+The CVE cross-reference reached the AL2023 repodata only once Amazon's
+mirror snapshot moved forward: the advisories are dated at disclosure,
+but a repodata check made before that snapshot advance found no
+cross-reference yet and read the fix as still pending.
 
 **Amazon Linux 2 reached end of support on 2026-06-30**, before this bug
 was disclosed. Its kernels, 4.14 on, stay vulnerable, with no fix
@@ -554,7 +558,10 @@ reproduced. Most readers never need it.
   `scripts/alas-cve`):
   - Streams present: `kernel` (6.1 line), `kernel6.12`, `kernel6.18`.
   - *Current kernel* is the highest `ver-rel` per stream.
-  - `alas-cve CVE-2026-81000` exits 1 — no advisory names the CVE yet.
+  - `alas-cve CVE-2026-81000` lists ALAS2023-2026-3104 (`kernel`
+    6.1.186-228.376.amzn2023), ALAS2023-2026-3103 (`kernel6.12`
+    6.12.103-129.197.amzn2023), and ALAS2023-2026-3102 (`kernel6.18`
+    6.18.48-109.150.amzn2023), each issued 2026-09-18.
   - AL2 excluded — end of support 2026-06-30.
 {{< /details >}}
 
