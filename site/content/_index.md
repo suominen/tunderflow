@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-09-29
+lastmod: 2026-09-30
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -138,9 +138,9 @@ a row is fixed.
 | NixOS | Unstable (nixpkgs) | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | 26.05 | 6.18.54 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
 | NixOS | 26.05 (small) | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| Rocky Linux / RHEL | 10 | 6.12.0-211.60.1.el10_2 | 6.12.0-211.60.1.el10_2 | 2026-09-25 | :white_check_mark: Fixed |
-| Rocky Linux / RHEL | 9 | 5.14.0-687.52.1.el9_8 | 5.14.0-687.51.1.el9_8 | 2026-09-25 | :white_check_mark: Fixed |
-| Rocky Linux / RHEL | 8 | 4.18.0-553.168.1.el8_10 | 4.18.0-553.168.1.el8_10 | 2026-09-24 | :white_check_mark: Fixed |
+| Rocky Linux / RHEL | 10 | 6.12.0-211.61.1.el10_2 | 6.12.0-211.60.1.el10_2 | 2026-09-25 | :white_check_mark: Fixed |
+| Rocky Linux / RHEL | 9 | 5.14.0-687.53.1.el9_8 | 5.14.0-687.51.1.el9_8 | 2026-09-25 | :white_check_mark: Fixed |
+| Rocky Linux / RHEL | 8 | 4.18.0-553.169.1.el8_10 | 4.18.0-553.168.1.el8_10 | 2026-09-24 | :white_check_mark: Fixed |
 | Amazon Linux | 2023 (default) | 6.1.188-233.385 | 6.1.186-228.376 | 2026-09-18 | :white_check_mark: Fixed — ALAS2023-2026-3104 |
 | Amazon Linux | 2023 (6.12 opt-in) | 6.12.110-135.201 | 6.12.103-129.197 | 2026-09-18 | :white_check_mark: Fixed — ALAS2023-2026-3103 |
 | Amazon Linux | 2023 (6.18 opt-in) | 6.18.51-120.162 | 6.18.48-109.150 | 2026-09-18 | :white_check_mark: Fixed — ALAS2023-2026-3102 |
