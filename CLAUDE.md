@@ -445,7 +445,7 @@ systemctl --user daemon-reload
 systemctl --user enable --now tunderflow-tracker-update.timer
 ```
 
-The timer fires at `06,18:35` — pick a slot no other tracker uses
+The timer fires at `06:35` — pick a slot no other tracker uses
 (verify the live set with `systemctl --user list-timers | grep tracker`,
 not just the in-repo registry, which has gone stale) so the shared clones
 are not fetched
