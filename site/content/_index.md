@@ -129,7 +129,7 @@ a row is fixed.
 | Debian | forky (testing) | 7.2.8-1 | 7.2.6-1 | 2026-09-17 | :white_check_mark: Fixed |
 | Debian | 13 (trixie) | 6.12.111-1 | 6.12.111-1 | 2026-09-29 | :white_check_mark: Fixed |
 | Debian | 12 (bookworm) | 6.1.187-1 | — | — | :x: Vulnerable |
-| Debian | 12 (6.12 opt-in) | 6.12.107-1~deb12u1 | — | — | :x: Vulnerable |
+| Debian | 12 (6.12 opt-in) | 6.12.111-1~deb12u1 | 6.12.111-1~deb12u1 | 2026-10-02 | :white_check_mark: Fixed |
 | Proxmox VE | 9 (default) | 7.0.14-20 | 7.0.14-19 | 2026-09-18 | :white_check_mark: Fixed |
 | NixOS | master | 6.18.54 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | release-26.05 | 6.18.54 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
@@ -169,9 +169,9 @@ rebuilt for bookworm.
 
 Debian may fix a suite with a `-security` upload that cherry-picks the
 fix into a build numbered below the upstream first fix, so trust the
-security tracker, not the version number. The tracker has no separate
-`linux-6.12` entry for this CVE; the opt-in follows the 6.12 line's
-fixes.
+security tracker, not the version number. `linux-6.12` carries the fix
+as of its `6.12.111-1~deb12u1` rebuild of trixie's fixed kernel; the
+default `linux` package on bookworm (6.1 line) is still open.
 
 **bullseye (Debian 11) left LTS support on 2026-08-31**, before this bug
 was disclosed. Its 5.10-line default kernel and the former `linux-6.1`
@@ -489,16 +489,20 @@ reproduced. Most readers never need it.
     `trixie-security`.
   - Tracker: `bookworm` *open*.
   - Tracker: no `bullseye` entry (LTS ended 2026-08-31).
-  - Tracker: no `linux-6.12` entry.
+  - Tracker: no `linux-6.12` entry for this CVE.
   - sid/forky *Fixed since*: `first_seen` of the `7.2.6-1` source files
     on snapshot.debian.org, 2026-09-17T02:27:04Z.
   - trixie *Fixed since*: `first_seen` of the `6.12.111-1` source files
     on snapshot.debian.org, 2026-09-29T09:48:59Z.
+  - `linux-6.12` *First fixed*/*Fixed since*: its `6.12.111-1~deb12u1`
+    rebuild shares trixie's fixed `6.12.111` orig tarball, per
+    snapshot.debian.org `first_seen` 2026-10-02T06:53:03Z.
   - *Current kernel* per suite is the madison version of `linux` in
     `sid`, `forky`, `trixie`/`trixie-security`, and
     `bookworm`/`bookworm-security` — the `-security` version where one
-    exists — and of `linux-6.12` in `bookworm-security` for the opt-in
-    row.
+    exists.
+  - `linux-6.12` is security-archive-only and absent from madison, so
+    its *Current kernel* comes from snapshot.debian.org instead.
 - **Proxmox VE** (via `pve-no-subscription` `Packages.gz` for `trixie`,
   the `~/src/proxmox/pve-kernel` changelogs, and Ubuntu's CVE JSON):
   - `proxmox-default-kernel` depends on `proxmox-kernel-7.0` on trixie.
