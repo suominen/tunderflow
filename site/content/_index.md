@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-10-04
+lastmod: 2026-10-05
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -117,7 +117,7 @@ a row is fixed.
 
 | Distribution | Release | Current kernel | First fixed | Fixed since | Status |
 |---|---|---|---|---|---|
-| Linux kernel | mainline | 7.3-rc5 | 7.3-rc1 | 2026-08-30 | :white_check_mark: Fixed — carries `447c9303942c` |
+| Linux kernel | mainline | 7.3-rc6 | 7.3-rc1 | 2026-08-30 | :white_check_mark: Fixed — carries `447c9303942c` |
 | Linux kernel | 7.2.x | 7.2.9 | 7.2.4 | 2026-09-07 | :white_check_mark: Fixed |
 | Linux kernel | 6.18.x | 6.18.55 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed — LTS |
 | Linux kernel | 6.12.x | 6.12.112 | 6.12.109 | 2026-09-07 | :white_check_mark: Fixed — LTS |
@@ -133,10 +133,10 @@ a row is fixed.
 | Proxmox VE | 9 (default) | 7.0.14-20 | 7.0.14-19 | 2026-09-18 | :white_check_mark: Fixed |
 | NixOS | master | 6.18.55 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | release-26.05 | 6.18.55 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
-| NixOS | Unstable | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| NixOS | Unstable | 6.18.55 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (small) | 6.18.55 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (nixpkgs) | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| NixOS | 26.05 | 6.18.54 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
+| NixOS | 26.05 | 6.18.55 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
 | NixOS | 26.05 (small) | 6.18.55 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | Rocky Linux / RHEL | 10 | 6.12.0-211.61.1.el10_2 | 6.12.0-211.60.1.el10_2 | 2026-09-25 | :white_check_mark: Fixed |
 | Rocky Linux / RHEL | 9 | 5.14.0-687.54.1.el9_8 | 5.14.0-687.51.1.el9_8 | 2026-09-25 | :white_check_mark: Fixed |
