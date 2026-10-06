@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-10-05
+lastmod: 2026-10-06
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -135,7 +135,7 @@ a row is fixed.
 | NixOS | release-26.05 | 6.18.55 | 6.18.50 | 2026-09-07 | :white_check_mark: Fixed |
 | NixOS | Unstable | 6.18.55 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | Unstable (small) | 6.18.55 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
-| NixOS | Unstable (nixpkgs) | 6.18.54 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
+| NixOS | Unstable (nixpkgs) | 6.18.55 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | NixOS | 26.05 | 6.18.55 | 6.18.50 | 2026-09-09 | :white_check_mark: Fixed |
 | NixOS | 26.05 (small) | 6.18.55 | 6.18.50 | 2026-09-08 | :white_check_mark: Fixed |
 | Rocky Linux / RHEL | 10 | 6.12.0-211.61.1.el10_2 | 6.12.0-211.60.1.el10_2 | 2026-09-25 | :white_check_mark: Fixed |
