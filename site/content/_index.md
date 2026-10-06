@@ -126,7 +126,7 @@ a row is fixed.
 | Linux kernel | 5.15.x | 5.15.222 | 5.15.221 | 2026-09-14 | :white_check_mark: Fixed — LTS |
 | Linux kernel | 5.10.x | 5.10.271 | 5.10.270 | 2026-09-14 | :white_check_mark: Fixed — LTS |
 | Debian | sid (unstable) | 7.2.9-1 | 7.2.6-1 | 2026-09-17 | :white_check_mark: Fixed |
-| Debian | forky (testing) | 7.2.8-1 | 7.2.6-1 | 2026-09-17 | :white_check_mark: Fixed |
+| Debian | forky (testing) | 7.2.8-1 | 7.2.6-1 | 2026-09-23 | :white_check_mark: Fixed |
 | Debian | 13 (trixie) | 6.12.111-1 | 6.12.111-1 | 2026-09-29 | :white_check_mark: Fixed |
 | Debian | 12 (bookworm) | 6.1.187-1 | — | — | :x: Vulnerable |
 | Debian | 12 (6.12 opt-in) | 6.12.111-1~deb12u1 | 6.12.111-1~deb12u1 | 2026-10-02 | :white_check_mark: Fixed |
@@ -490,8 +490,11 @@ reproduced. Most readers never need it.
   - Tracker: `bookworm` *open*.
   - Tracker: no `bullseye` entry (LTS ended 2026-08-31).
   - Tracker: no `linux-6.12` entry for this CVE.
-  - sid/forky *Fixed since*: `first_seen` of the `7.2.6-1` source files
-    on snapshot.debian.org, 2026-09-17T02:27:04Z.
+  - sid *Fixed since*: `first_seen` of the `7.2.6-1` source files on
+    snapshot.debian.org, 2026-09-17T02:27:04Z.
+  - forky *Fixed since*: `7.2.6-1` migrated to testing 2026-09-23, per
+    tracker.debian.org's news and snapshot.debian.org's `dists/testing`
+    source index.
   - trixie *Fixed since*: `first_seen` of the `6.12.111-1` source files
     on snapshot.debian.org, 2026-09-29T09:48:59Z.
   - `linux-6.12` *First fixed*/*Fixed since*: its `6.12.111-1~deb12u1`
