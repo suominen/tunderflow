@@ -679,7 +679,16 @@ score yet. Red Hat's own score may be marked `draft`.
   `red_hat_enterprise_linux_9:kernel-rt` after the fixes ship, and on RHEL
   9 and 10 the real-time kernel ships in the same RHSA as `kernel` (its
   `vendor_fix` product IDs include `RT-…` / `NFV-…` streams).  Check those
-  product IDs before calling a `kernel-rt` stream unfixed.  Never
+  product IDs before calling a `kernel-rt` stream unfixed.  **The
+  current minor release is not labelled as such**: its `vendor_fix`
+  product IDs read `BaseOS-8.10.0.Z.MAIN.EUS:…`,
+  `BaseOS-9.8.0.Z.MAIN.EUS:…` or plain `BaseOS-10.2.Z:…`.  A
+  `Z.MAIN.EUS` ID is the main stream Rocky rebuilds, not an EUS variant
+  (those read `Z.EUS`, `Z.E4S`, `Z.AUS`, `Z.TUS`) — DiagSpill's Rocky
+  rows sat at "no RHSA yet" for twelve days after the main-stream RHSAs
+  shipped because of this misreading.  Cross-check hydra: an
+  `affected_release` entry whose `product_name` is exactly `Red Hat
+  Enterprise Linux <N>` is the main-stream fix.  Never
   WebFetch the `access.redhat.com/security/cve/` page — it is
   JS-rendered and returns only the navigation shell headlessly, which
   reads as a false "no record". While `fix_state` is Affected with an
@@ -688,7 +697,8 @@ score yet. Red Hat's own score may be marked `draft`.
   reaching that
   NVR — and expect Rocky to **skip the exact RHEL NVR** and publish the
   next build instead, so *First fixed* is the first Rocky build past
-  the RHSA NVR, not the RHSA NVR. For *Fixed since* use that build's
+  the RHSA NVR, not the RHSA NVR; the changelog cross-check below
+  confirms which build that is. For *Fixed since* use that build's
   upload date from the mirror directory listing
   `https://dl.rockylinux.org/pub/rocky/<N>/BaseOS/x86_64/os/Packages/k/`:
   Rocky's own `updateinfo.xml` may name no advisory for the CVE at all,
@@ -696,7 +706,9 @@ score yet. Red Hat's own score may be marked `draft`.
   ignores its `?cve=` / `?search=` filters and returns the newest
   advisories whatever is asked, so neither is a usable date source.
   AlmaLinux is the fastest rebuild (cross-check OSV
-  `https://api.osv.dev/v1/vulns/CVE-2026-81000`, which lists the ALSA). Red Hat
+  `https://api.osv.dev/v1/vulns/CVE-2026-81000`, which lists the ALSA — but
+  an ALSA rebuilt from an RHSA whose CVE list Red Hat amended later can
+  omit the CVE, so a miss there is not evidence of no fix). Red Hat
   also marks kernels that predate the bug **Not affected**, which
   confirms any pre-introduction EL rows.
 
@@ -746,17 +758,23 @@ score yet. Red Hat's own score may be marked `draft`.
   change for an unfixed row keeps it off the many quiet runs. When the
   gate opens, pull the BaseOS `*-other.xml.gz` (resolve its href from
   `repomd.xml`, same as `primary.xml.gz`) and ask it, with an XPath
-  query, for the `kernel` changelog entries that name the CVE. Use `xq`
+  query, for the `kernel` changelog entries that name the CVE **or the
+  fix's subject** — RHEL's changelog often cites only the upstream
+  subject and a `RHEL-NNNNNN` Jira ID, never the CVE (this bug's
+  `net: tun: bound receive headroom` entries named no CVE in any EL stream), so a
+  CVE-only query misses the backport. Use `xq`
   (sibprogrammer's Go `xq`, Debian package `xq`; allowlisted for the
   headless run) rather than a line grep: it parses the document, so the
   query does not depend on how createrepo_c happens to serialise it
   (today one node per line; a grep would silently break the day that
   changes). Each entry's `author` attribute ends in `[<NVR>]`, the RHEL
   build the change landed in, and empty output means no entry names the
-  CVE (`xq` exits 0 either way — read the output, not the status):
+  CVE or the subject keyword (`xq` exits 0 either way — read the output,
+  not the status). The keyword is a substring, so read a hit's entry
+  text and confirm it is the fix's own subject, not a follow-up:
 
   ```
-  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | xq -x '//package[@name="kernel"]/changelog[contains(., "CVE-2026-81000")]/@author' | sort -u
+  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | xq -x '//package[@name="kernel"]/changelog[contains(., "CVE-2026-81000") or contains(., "bound receive headroom")]/@author' | sort -u
   ```
 
   On a hit, list the shipped Rocky `kernel` builds whose changelog
@@ -770,7 +788,7 @@ score yet. Red Hat's own score may be marked `draft`.
   `rpmsort` would order lexically:
 
   ```
-  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | xq -n -x '//package[@name="kernel"][changelog[contains(., "CVE-2026-81000")]]/version' | sort -u | jq -R -r 'capture("epoch=\"(?<e>[^\"]+)\"") + capture("ver=\"(?<v>[^\"]+)\"") + capture("rel=\"(?<r>[^\"]+)\"") | "kernel-\(.e):\(.v)-\(.r)"' | rpmsort | grep -o '[^:][^:]*$'
+  curl -fsSL "${base}repodata/<hash>-other.xml.gz" | zcat | xq -n -x '//package[@name="kernel"][changelog[contains(., "CVE-2026-81000") or contains(., "bound receive headroom")]]/version' | sort -u | jq -R -r 'capture("epoch=\"(?<e>[^\"]+)\"") + capture("ver=\"(?<v>[^\"]+)\"") + capture("rel=\"(?<r>[^\"]+)\"") | "kernel-\(.e):\(.v)-\(.r)"' | rpmsort | grep -o '[^:][^:]*$'
   ```
 
   Fetch once with `| zcat | tee other.xml` and query the file if you
