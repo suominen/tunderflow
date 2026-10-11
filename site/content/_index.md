@@ -3,7 +3,7 @@ title: "TUNderflow — TUN/TAP receive-headroom underflow"
 description: "Linux kernel TUN/TAP receive-headroom integer underflow (CVE-2026-81000, TUNderflow) — out-of-bounds skb head, local privilege escalation to root with a public exploit — distro patch status tracker"
 layout: "single"
 date: 2026-09-18
-lastmod: 2026-10-10
+lastmod: 2026-10-11
 cover:
   image: "tunderflow-tracker.png"
   alt: "TUNderflow — Linux kernel TUN/TAP receive-headroom underflow tracker"
@@ -217,10 +217,13 @@ way.
 Every NixOS channel and branch in the table defaults to
 `linux_6_18` (`linuxPackages`), which carries the fix.
 nixpkgs also pins the older long-term series
-(`linux_6_12`, `linux_6_6`, `linux_6_1`, `linux_5_15`, `linux_5_10`) at
-fixed releases, so a host overriding the default is fixed too, as long
-as it tracks a ref current enough to have picked up the mid-September
-bumps.
+(`linux_6_12`, `linux_6_6`, `linux_6_1`) at fixed releases, so a host
+overriding the default is fixed too, as long as it tracks a ref current
+enough to have picked up the mid-September bumps.
+
+`master` dropped `linux_5_10` and `linux_5_15` outright on 2026-10-06,
+ahead of their upcoming upstream end of life; `release-26.05` still
+defines both, pinned at their own fixed releases.
 
 Kernel updates land on nixpkgs `master` first and reach each channel
 once its Hydra jobset passes, so a channel can sit a few days behind
@@ -540,8 +543,11 @@ reproduced. Most readers never need it.
     2026-09-09.
   - *Current kernel* per row is the `6.18` entry of `kernels-org.json`
     at that ref.
-  - The 6.12, 6.6, 6.1, 5.15, and 5.10 entries at every tracked ref
-    are at or above their branches' first-fixed releases.
+  - The 6.12, 6.6, and 6.1 entries at every tracked ref are at or above
+    their branches' first-fixed releases.
+  - `linux_5_10` and `linux_5_15` were removed from `master` in
+    `84787c67d016`, committed 2026-10-06 ("will reach its end of life
+    within 26.11"); `release-26.05` still defines both.
 - **Rocky Linux / RHEL** (via Red Hat's hydra `securitydata` JSON, and
   the Rocky BaseOS `x86_64` `primary.xml.gz`):
   - `package_state`: plain `kernel` no longer lists RHEL 7, 8, 9, or 10
