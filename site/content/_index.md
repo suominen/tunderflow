@@ -10,6 +10,11 @@ cover:
   hiddenInSingle: true
 ---
 
+*This tracker is no longer updated.  Every maintained upstream stable
+line carries the fix, as do Debian, Proxmox VE 9's default kernel, every
+tracked NixOS ref, Rocky Linux / RHEL 10, 9 and 8, and all three Amazon
+Linux 2023 kernel streams — install a fixed kernel and reboot into it.*
+
 ## Summary
 
 | Field | Detail |
@@ -21,7 +26,7 @@ cover:
 | Impact | Kernel heap out-of-bounds read/write: a crash (**DoS**) or, with grooming, **local privilege escalation to root** — the public PoC sets `PIPE_BUF_FLAG_CAN_MERGE` on an adjacent pipe buffer and rewrites `/etc/pam.d/su`. Not remotely reachable. A container holding `CAP_NET_ADMIN` over its own network namespace can corrupt the host kernel the same way |
 | Upstream fix | [`447c9303942c`][fix] (*net: tun: bound receive headroom*); first in **v7.3-rc1** |
 | Introduced | [`eaea34b23c46`][intro] in **v4.6** (2016) — `ndo_set_rx_headroom` support for TUN stored the requested headroom without a bound from the start, so **every TUN-capable kernel from 4.6 on is in-window** |
-| Affected window | **4.6 through 7.1** without the backport, and 7.2 before 7.2.4. Fixed in **v7.3-rc1** and the **7.2 / 6.18 / 6.12 / 6.6 / 6.1 / 5.15 / 5.10** stable backports — every maintained upstream line now carries the fix (per-branch *First fixed* below). **7.1.y went end-of-life at 7.1.13 without it.** Distro kernels still need to adopt a fixed release or cherry-pick the fix |
+| Affected window | **4.6 through 7.1** without the backport, and 7.2 before 7.2.4. Fixed in **v7.3-rc1** and the **7.2 / 6.18 / 6.12 / 6.6 / 6.1 / 5.15 / 5.10** stable backports — every maintained upstream line carries the fix (per-branch *First fixed* below). **7.1.y went end-of-life at 7.1.13 without it.** Every tracked distribution ships a fixed kernel |
 | Discoverer | Asim Viladi Oglu Manizada (`@manizada`) |
 | Public disclosure | 2026-09-18 ([oss-security][oss-sec] and the [write-up][writeup]); reported to security@kernel.org in mid-July 2026 and held under a linux-distros@ embargo until the agreed publication date |
 | Public PoC | [manizada/TUNderflow][poc] — a working local-root exploit (Python 3), tuned for Fedora 44 and Ubuntu 24.04.4 kernels |
@@ -112,8 +117,9 @@ A row is **Fixed** only if its kernel carries the [`447c9303942c`][fix]
 backport; every TUN-capable kernel from 4.6 on without it is in-window
 and **Vulnerable**. The first group is the upstream kernel; the rest are
 a focused set of x86-64 distributions, with per-distribution detail in
-the sections that follow. *First fixed* and *Fixed since* stay `—` until
-a row is fixed.
+the sections that follow. *Current kernel* is the package or point
+release current when this tracker was retired; *First fixed* and *Fixed
+since* record the first build carrying the fix and the date it shipped.
 
 | Distribution | Release | Current kernel | First fixed | Fixed since | Status |
 |---|---|---|---|---|---|
@@ -169,7 +175,7 @@ rebuilt for bookworm.
 
 Debian may fix a suite with a `-security` upload that cherry-picks the
 fix into a build numbered below the upstream first fix, so trust the
-security tracker, not the version number. Every suite tracked here now
+security tracker, not the version number. Every suite tracked here
 carries the fix: bookworm's default `linux` package picked it up as a
 Debian LTS upload, since oldstable's security support has passed from
 the regular security team to the LTS team; `linux-6.12` carries it via
@@ -399,9 +405,10 @@ paths, so treat that as a speed bump rather than a mitigation.
   unsafe until it carries the backport.
 - **Backports available (CVE-2026-81000):** the fix has landed in
   7.3-rc1, 7.2.4, 6.18.50, 6.12.109, 6.6.157, 6.1.188, 5.15.221, and
-  5.10.270; distro kernels that have not adopted one of those, or
-  cherry-picked `447c9303942c`, remain vulnerable. The 7.1.y line is
-  end-of-life without it.
+  5.10.270, and every tracked distribution ships it. Any other kernel
+  that has not adopted one of those releases, or cherry-picked
+  `447c9303942c`, is vulnerable. The 7.1.y line is end-of-life without
+  it.
 
 ## Verification log
 
